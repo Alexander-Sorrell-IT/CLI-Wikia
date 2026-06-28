@@ -1,11 +1,51 @@
-# Gemini CLI Wiki
+# Gemini CLI
 
-> **Status: skeleton — not yet populated.**
+Gemini CLI is Google's command-line coding assistant. Launch an interactive
+session, or run one-shot prompts with `-p`/`--prompt` (or a positional query)
+for non-interactive scripting and automation.
 
-This folder will hold reference docs for **Gemini CLI**, mirroring the
-structure of the Claude wiki (one Markdown file per topic).
+- **Tool:** `gemini`
+- **Version referenced:** 0.22.4
 
-**Planned content source:** gemini CLI (installed) + https://ai.google.dev/gemini-api/docs
+## Quick start
 
-Run `wikia update gemini` (coming in phase 2) to pull/refresh these docs,
-or just drop your own `.md` files in this folder and reinstall.
+```bash
+# Interactive session
+gemini
+
+# One-shot prompt (non-interactive, prints and exits)
+gemini "explain this repository"
+
+# Run a prompt, then drop into interactive mode
+gemini -i "summarize the open TODOs"
+
+# Pick a model
+gemini -m <model> "write a unit test for utils.py"
+
+# Auto-approve all actions (YOLO)
+gemini -y "refactor the logging module"
+
+# Resume the most recent session
+gemini --resume latest
+```
+
+## Topics
+
+| File | Description |
+|------|-------------|
+| [cli-reference.md](cli-reference.md) | Full flags, options, and subcommands |
+| [models.md](models.md) | Selecting a model with `-m`/`--model` |
+| [configuration.md](configuration.md) | Config locations and environment |
+| [mcp.md](mcp.md) | Managing MCP servers (`gemini mcp`) |
+| [extensions.md](extensions.md) | Managing Gemini CLI extensions |
+| [sessions.md](sessions.md) | Resume, list, and delete sessions |
+
+## Commands at a glance
+
+| Command | Purpose |
+|---------|---------|
+| `gemini [query..]` | Launch Gemini CLI (default) |
+| `gemini mcp` | Manage MCP servers |
+| `gemini extensions <command>` | Manage Gemini CLI extensions |
+
+> Verify exact values in the official docs / run `gemini --help`.
