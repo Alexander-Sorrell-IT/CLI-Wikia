@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cli-wikia"
+version = "0.1.0"
+description = "Offline, pip-installable reference wiki for AI coding CLIs (Claude, DeepSeek, Copilot, ChatGPT, Gemini) with a search/read command."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [{ name = "Alexander Sorrell", email = "codehunterextreme@gmail.com" }]
+keywords = ["ai", "cli", "wiki", "claude", "deepseek", "copilot", "chatgpt", "gemini", "reference"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Documentation",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Alexander-Sorrell-IT/CLI-Wikia"
+Repository = "https://github.com/Alexander-Sorrell-IT/CLI-Wikia"
+
+[project.scripts]
+wikia = "cli_wikia.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cli_wikia"]
+artifacts = ["src/cli_wikia/wikis/**/*.md"]
