@@ -1,33 +1,37 @@
-# ChatGPT / OpenAI CLI Wiki
+# ChatGPT (Codex / OpenAI) Wiki
 
-Reference for OpenAI's command-line tooling. Documented against the official
-**`openai` CLI v2.24.0** (installed), which ships with the OpenAI Python SDK
-and makes direct API calls to ChatGPT/GPT models.
+OpenAI's command-line tooling. The **primary** tool here — the peer to Claude
+Code, Gemini CLI, Antigravity and Copilot CLI — is **Codex**, OpenAI's terminal
+**coding agent** (`codex`). A second, API-focused tool, the **`openai` CLI**, is
+also documented.
 
-> **Two different "ChatGPT" command-line tools exist:**
-> - **`openai` CLI** — official, API-focused (chat completions, images, audio,
->   files, fine-tuning). This is what's installed and documented here in detail.
-> - **Codex CLI** — OpenAI's *coding agent* (the peer to Claude Code / Gemini
->   CLI / Copilot CLI). Not installed on this machine — see
->   [codex-cli.md](./codex-cli.md). Verify details in the official docs.
+> **Tool status on this machine:**
+> - **Codex CLI (`codex`)** — the coding agent. **Not installed here**, so its
+>   pages are sourced from official docs and clearly marked. Start at
+>   [codex-cli.md](./codex-cli.md).
+> - **`openai` CLI (v2.24.0)** — installed; API calls (chat, images, audio,
+>   files, fine-tuning). Verified from `openai --help`.
 
 ## Quick start
 
 ```bash
+# Codex (coding agent) — after installing it
+codex "fix the failing test in app.py"
+
+# openai CLI (API calls) — installed
 export OPENAI_API_KEY=sk-...
 openai api chat.completions.create -m gpt-4o -g user "Explain async/await"
-openai api models.list
 ```
 
 ## Topics
 
 | File | What it covers |
 |------|----------------|
-| [cli-reference.md](./cli-reference.md) | `openai` flags + `api` / `tools` / `migrate` / `grit` subcommands |
+| [codex-cli.md](./codex-cli.md) | **Codex** — the OpenAI coding agent (primary; from docs) |
+| [cli-reference.md](./cli-reference.md) | `openai` CLI flags + `api` / `tools` subcommands (verified) |
 | [models.md](./models.md) | Choosing a model (`-m`), listing models |
 | [configuration.md](./configuration.md) | API key, base URL, organization, Azure |
-| [codex-cli.md](./codex-cli.md) | OpenAI Codex CLI — the coding-agent peer (from docs) |
 
-> CLI sections verified from `openai --help`. Model names and Codex details
-> come from official OpenAI docs — verify with `openai api models.list` and the
-> latest documentation.
+> `openai` CLI sections verified from `openai --help`. Codex and model names
+> come from official OpenAI docs — verify after installing `codex` and with
+> `openai api models.list`.

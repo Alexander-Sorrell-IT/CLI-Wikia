@@ -18,8 +18,9 @@ MODEL_CLIS = {
     "claude": "claude",
     "deepseek": "deepseek-code",
     "copilot": "copilot",
-    "chatgpt": None,  # no local CLI; docs only
+    "chatgpt": "codex",  # OpenAI Codex CLI (may not be installed yet)
     "gemini": "gemini",
+    "antigravity": "agy",  # Google Antigravity CLI
 }
 
 
@@ -54,7 +55,7 @@ def cmd_models(args):
         n = len(topics(m))
         cli = MODEL_CLIS.get(m)
         cli_state = f"cli: {cli}" if cli and shutil.which(cli) else "cli: not installed"
-        print(f"{m:10} {n:3} topics   ({cli_state})")
+        print(f"{m:12} {n:3} topics   ({cli_state})")
 
 
 def cmd_list(args):
