@@ -366,16 +366,26 @@ def build_parser():
     s.add_argument("--write", action="store_true", help="actually install the hooks")
     s.set_defaults(func=H.cmd_apply)
 
-    # schedule — auto-run `wikia update` on a timer (see schedule.py)
+    # schedule — config-driven auto-update timer (see schedule.py)
     from . import schedule as S
 
-    sc = sub.add_parser("schedule", help="auto-update on a timer (hourly/daily/weekly/monthly)")
-    sc.add_argument("interval", nargs="?", choices=S.INTERVALS, help="how often to auto-update")
-    sc.add_argument("--upgrade", action="store_true", help="also `pip install --upgrade cli-wikia` each run")
-    sc.add_argument("--status", action="store_true", help="show the installed timer + next run")
-    sc.add_argument("--remove", action="store_true", help="remove the scheduled timer")
-    sc.add_argument("--write", action="store_true", help="actually install/remove (default: dry-run)")
-    sc.set_defaults(func=S.cmd_schedule)
+    sc = sub.add_parser("schedule", help="auto-update on a timer, configured via a file")
+    scsub = sc.add_subparsers(dest="schedule_cmd", required=True)
+
+    c = scsub.add_parser("config", help="create/show the schedule config file (pick interval here)")
+    c.add_argument("--write", action="store_true", help="create the config file")
+    c.set_defaults(func=S.cmd_config)
+
+    c = scsub.add_parser("apply", help="make the timer match the config (dry-run unless --write)")
+    c.add_argument("--write", action="store_true", help="actually install/remove the timer")
+    c.set_defaults(func=S.cmd_apply)
+
+    c = scsub.add_parser("status", help="show config + installed timer")
+    c.set_defaults(func=S.cmd_status)
+
+    c = scsub.add_parser("remove", help="remove the scheduled timer (dry-run unless --write)")
+    c.add_argument("--write", action="store_true", help="actually remove")
+    c.set_defaults(func=S.cmd_remove)
 
     return p
 
