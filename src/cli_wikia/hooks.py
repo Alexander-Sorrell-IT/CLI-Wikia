@@ -113,6 +113,26 @@ def instruction_file(model):
     return best if counts[best] else "AGENTS.md"
 
 
+def config_root(model):
+    """The project-level config directory a tool uses (e.g. .claude, .gemini,
+    .github), derived dynamically from the model's wiki — the most-mentioned
+    dot-directory. Used by downstream tools (e.g. cli-enforcement) to know where
+    to deploy per-model files. Returns None if the wiki names no such dir."""
+    text = _wiki_text(model, "hooks.md", "configuration.md", "settings.md",
+                      "getting-started.md", "cli-reference.md")
+    dirs = re.findall(r"(?<![\w/~.])(\.[a-z][\w-]+)/", text)
+    # ignore obvious non-config dot-dirs
+    ignore = {".md", ".py", ".sh", ".json", ".git", ".env", ".venv"}
+    counts = {}
+    for d in dirs:
+        if d in ignore:
+            continue
+        counts[d] = counts.get(d, 0) + 1
+    if not counts:
+        return None
+    return max(counts, key=lambda d: counts[d])
+
+
 # --------------------------------------------------------------------------- #
 # Level 1 — awareness
 # --------------------------------------------------------------------------- #
