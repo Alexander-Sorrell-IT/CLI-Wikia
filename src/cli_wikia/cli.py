@@ -220,7 +220,29 @@ def fetch_docs(url):
     text = re.sub(r"(?is)<(script|style).*?</\1>", " ", html)
     text = re.sub(r"(?s)<[^>]+>", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
-    return f"# docs: {url}\n{text[:8000]}"
+    return f"# docs: {url}\n{text[:30000]}"
+
+
+def wiki_doc_urls(model, limit=2):
+    """Official doc URLs for a model, discovered FROM its own wiki pages
+    (dynamic — not a hardcoded list). Prefers documentation-looking links."""
+    d = model_dir(model)
+    if not d.is_dir():
+        return []
+    text = "".join(
+        p.read_text(encoding="utf-8") for p in sorted(d.iterdir()) if p.name.endswith(".md")
+    )
+    urls = [u.rstrip(".,);]`") for u in re.findall(r"https?://[^\s)\]\"'>`]+", text)]
+    bad = ("example.com", "example.org", "localhost", "127.0.0.1", "your-", "git-scm.com")
+    urls = [u for u in urls if not any(b in u for b in bad)]
+    docish = [u for u in urls if re.search(r"docs?[./]|/docs|developers?\.|\.github\.io|/guide", u)]
+    out = []
+    for u in (docish or urls):
+        if u not in out:
+            out.append(u)
+        if len(out) >= limit:
+            break
+    return out
 
 
 def query_model(cli, ask_template, question):
@@ -233,17 +255,22 @@ def query_model(cli, ask_template, question):
 
 
 def capture_sources(m, cli, use_docs, use_model):
-    """Gather ALL THREE sources for a model into one snapshot blob:
-    (1) the CLI's own facts (version + help), (2) the official docs, and
-    (3) the model's self-report. Docs and the model are the real depth; help is
-    the factual cross-check. Use --no-docs / --no-model to drop a source."""
+    """Gather sources for a model into one snapshot blob, leaning on the docs.
+    Order = priority: (1) OFFICIAL DOCUMENTATION first (URLs discovered from the
+    model's own wiki, plus a seed), (2) the CLI's own facts (version + help),
+    (3) the model's self-report (secondary — models are unreliable about
+    themselves). Use --no-docs / --no-model to drop a source."""
     src = MODEL_SOURCES.get(m, {})
-    parts = [
-        _run_cli(cli, src.get("version", ["--version"])),
-        _run_cli(cli, ["--help"]),
-    ]
-    if use_docs and src.get("docs"):
-        parts.append(fetch_docs(src["docs"]))
+    parts = []
+    if use_docs:
+        urls = wiki_doc_urls(m)
+        seed = src.get("docs")
+        if seed and seed not in urls:
+            urls.append(seed)
+        for url in urls[:2]:
+            parts.append(fetch_docs(url))
+    parts.append(_run_cli(cli, src.get("version", ["--version"])))
+    parts.append(_run_cli(cli, ["--help"]))
     if use_model and src.get("ask"):
         mq = query_model(cli, src["ask"], WHATS_NEW_Q)
         if mq:
