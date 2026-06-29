@@ -67,7 +67,8 @@ def _awareness_block(model):
     tlist = ", ".join(_topics(model)[:12])
     return (
         f"{MARK_START}\n"
-        f"## Local reference wiki (cli-wikia)\n"
+        f"## Local reference wiki (cli-wikia) — ⚠️ EXPERIMENTAL\n"
+        f"> This wiki integration is experimental and may change.\n"
         f"An offline wiki for this tool is installed. Use it as reference:\n"
         f"- `wikia read {model} <topic>` — read a topic\n"
         f"- `wikia search \"<query>\" --model {model}` — search this tool's docs\n"
@@ -167,6 +168,9 @@ def cmd_manifest(args):
         f.write("\n")
     ref = [
         f"# {model} hook positions (generated from the wiki)",
+        "",
+        "> ⚠️ **EXPERIMENTAL.** This hook integration is new and may change. "
+        "Hooks run automatically and can block the tool — review carefully before applying.",
         "",
         f"Edit `{model}.hooks.json` to add hooks. Each event maps to a list of",
         'handlers, e.g.: {"matcher": "Bash", "type": "command", "command": "echo hi"}',
