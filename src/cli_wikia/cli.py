@@ -366,6 +366,17 @@ def build_parser():
     s.add_argument("--write", action="store_true", help="actually install the hooks")
     s.set_defaults(func=H.cmd_apply)
 
+    # schedule — auto-run `wikia update` on a timer (see schedule.py)
+    from . import schedule as S
+
+    sc = sub.add_parser("schedule", help="auto-update on a timer (hourly/daily/weekly/monthly)")
+    sc.add_argument("interval", nargs="?", choices=S.INTERVALS, help="how often to auto-update")
+    sc.add_argument("--upgrade", action="store_true", help="also `pip install --upgrade cli-wikia` each run")
+    sc.add_argument("--status", action="store_true", help="show the installed timer + next run")
+    sc.add_argument("--remove", action="store_true", help="remove the scheduled timer")
+    sc.add_argument("--write", action="store_true", help="actually install/remove (default: dry-run)")
+    sc.set_defaults(func=S.cmd_schedule)
+
     return p
 
 
