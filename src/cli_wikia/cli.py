@@ -8,9 +8,11 @@ from __future__ import annotations
 import argparse
 import difflib
 import os
+import re
 import shutil
 import subprocess
 import sys
+import urllib.request
 from importlib import resources
 
 from . import MODELS, __version__
@@ -23,6 +25,37 @@ MODEL_CLIS = {
     "chatgpt": "codex",  # OpenAI Codex CLI (may not be installed yet)
     "gemini": "gemini",
     "antigravity": "agy",  # Google Antigravity CLI
+}
+
+# Sources the `update` command checks for changes, per model.
+#  - probes: safe, read-only CLI invocations (NO `update`/`login` — those have
+#    side effects). `changelog` is included only where it just prints notes.
+#  - docs: official documentation URL (best-effort; edit if a tool moves its docs).
+MODEL_SOURCES = {
+    "claude": {
+        "probes": [["--version"], ["--help"]],
+        "docs": "https://docs.claude.com/en/docs/claude-code/overview",
+    },
+    "deepseek": {
+        "probes": [["--version"], ["--help"]],
+        "docs": "https://api-docs.deepseek.com/",
+    },
+    "copilot": {
+        "probes": [["--version"], ["--help"]],
+        "docs": "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli",
+    },
+    "chatgpt": {
+        "probes": [["--version"], ["--help"]],
+        "docs": "https://developers.openai.com/codex/cli/",
+    },
+    "gemini": {
+        "probes": [["--version"], ["--help"]],
+        "docs": "https://google-gemini.github.io/gemini-cli/",
+    },
+    "antigravity": {
+        "probes": [["--version"], ["--help"], ["changelog"]],
+        "docs": "https://antigravity.google/docs",
+    },
 }
 
 
@@ -142,34 +175,72 @@ def snapshot_dir():
     return os.path.join(base, "cli-wikia", "snapshots")
 
 
-def capture_cli(cli):
-    """Capture a model CLI's --version and --help as the ground-truth snapshot."""
-    parts = []
-    for probe in (["--version"], ["--help"]):
-        try:
-            r = subprocess.run(
-                [cli, *probe],
-                capture_output=True,
-                text=True,
-                timeout=30,
-                stdin=subprocess.DEVNULL,
-            )
-            parts.append(f"$ {cli} {' '.join(probe)}\n{r.stdout}{r.stderr}".strip())
-        except (subprocess.TimeoutExpired, OSError) as e:
-            parts.append(f"$ {cli} {' '.join(probe)}\n<error: {e}>")
+def _run_cli(cli, probe):
+    """Run one read-only CLI probe and return its labelled output."""
+    try:
+        r = subprocess.run(
+            [cli, *probe],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            stdin=subprocess.DEVNULL,
+        )
+        return f"$ {cli} {' '.join(probe)}\n{r.stdout}{r.stderr}".strip()
+    except (subprocess.TimeoutExpired, OSError) as e:
+        return f"$ {cli} {' '.join(probe)}\n<error: {e}>"
+
+
+def fetch_docs(url):
+    """Fetch an official docs page and reduce it to text for change detection.
+
+    Uses only the standard library. Returns a text block, or an error note if
+    offline / the page is unreachable (so update still works offline).
+    """
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "cli-wikia/update"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            html = resp.read(500_000).decode("utf-8", "replace")
+    except Exception as e:  # noqa: BLE001 - network can fail many ways; degrade gracefully
+        return f"# docs: {url}\n<unreachable: {e}>"
+    text = re.sub(r"(?is)<(script|style).*?</\1>", " ", html)
+    text = re.sub(r"(?s)<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return f"# docs: {url}\n{text[:8000]}"
+
+
+def ask_model_whats_new(cli):
+    """Optionally ask the model itself what changed. UNRELIABLE — models often
+    don't know their own changelog — so the output is labelled as such."""
+    prompt = (
+        "In 5 bullet points, what are the newest features or recent changes in "
+        "this very CLI tool/version? If you are not sure, say so explicitly."
+    )
+    out = _run_cli(cli, ["-p", prompt])
+    return "# model-generated (UNVERIFIED — may be inaccurate):\n" + out
+
+
+def capture_sources(m, cli, use_docs, ask_model):
+    """Gather all configured sources for a model into one snapshot blob."""
+    src = MODEL_SOURCES.get(m, {"probes": [["--version"], ["--help"]], "docs": None})
+    parts = [_run_cli(cli, probe) for probe in src["probes"]]
+    if use_docs and src.get("docs"):
+        parts.append(fetch_docs(src["docs"]))
+    if ask_model:
+        parts.append(ask_model_whats_new(cli))
     return "\n\n".join(parts) + "\n"
 
 
 def cmd_update(args):
-    """Check each installed model CLI for changes vs the last saved snapshot.
+    """Check each model's sources (CLI --help/--version, official docs, and
+    optionally the model itself) for changes vs the last saved snapshot.
 
-    Re-captures the tool's own --version/--help (ground truth, no API keys) and
-    reports what changed, so curated docs can be refreshed. Never overwrites the
-    curated .md files; snapshots live in the user state dir.
+    Reports what changed so curated docs can be refreshed. No API keys. Never
+    overwrites the curated .md files; snapshots live in the user state dir.
     """
     if not args.all and not args.model:
         sys.exit("specify a model (e.g. `wikia update gemini`) or use `--all`.")
     models = MODELS if args.all else [resolve_model(args.model)]
+    use_docs = not args.no_docs
     sdir = snapshot_dir()
     os.makedirs(sdir, exist_ok=True)
     changed_any = False
@@ -181,17 +252,18 @@ def cmd_update(args):
         if not shutil.which(cli):
             print(f"{m:12} '{cli}' not installed — can't check for updates")
             continue
-        current = capture_cli(cli)
+        sources = "help/version" + (" + docs" if use_docs else "") + (" + model" if args.ask_model else "")
+        current = capture_sources(m, cli, use_docs, args.ask_model)
         snap = os.path.join(sdir, f"{m}.txt")
         if not os.path.exists(snap):
             with open(snap, "w", encoding="utf-8") as f:
                 f.write(current)
-            print(f"{m:12} baseline snapshot saved ({cli}). Run again later to detect changes.")
+            print(f"{m:12} baseline snapshot saved ({sources}). Run again later to detect changes.")
             continue
         with open(snap, encoding="utf-8") as f:
             prev = f.read()
         if prev == current:
-            print(f"{m:12} up to date ({cli}, no change since last snapshot)")
+            print(f"{m:12} up to date ({sources}, no change)")
             continue
         changed_any = True
         diff = [
@@ -201,7 +273,7 @@ def cmd_update(args):
             )
             if ln and ln[0] in "+-" and not ln.startswith(("+++", "---"))
         ]
-        print(f"{m:12} CHANGED ({cli}) — {len(diff)} differing lines:")
+        print(f"{m:12} CHANGED ({sources}) — {len(diff)} differing lines:")
         for ln in diff[:30]:
             print(f"             {ln}")
         if len(diff) > 30:
@@ -253,10 +325,12 @@ def build_parser():
     sp.add_argument("--max-context", type=int, default=24000, help="max chars of docs to feed")
     sp.set_defaults(func=cmd_ask)
 
-    sp = sub.add_parser("update", help="check a model's CLI for changes vs the last snapshot")
+    sp = sub.add_parser("update", help="check a model's sources (help, docs, model) for changes")
     sp.add_argument("model", nargs="?", help="model name (omit and use --all for every model)")
     sp.add_argument("--all", action="store_true", help="check every model")
     sp.add_argument("--write", action="store_true", help="accept current state as the new baseline")
+    sp.add_argument("--no-docs", action="store_true", help="skip fetching official docs (offline / faster)")
+    sp.add_argument("--ask-model", action="store_true", help="also ask the model what changed (UNRELIABLE, labelled)")
     sp.set_defaults(func=cmd_update)
 
     return p

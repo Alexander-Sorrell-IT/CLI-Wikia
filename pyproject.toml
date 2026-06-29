@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cli-wikia"
-version = "0.5.0"
+version = "0.6.0"
 description = "Offline, pip-installable reference wiki for AI coding CLIs (Claude, DeepSeek, Copilot, ChatGPT, Gemini) with a search/read command."
 readme = "README.md"
 requires-python = ">=3.8"
