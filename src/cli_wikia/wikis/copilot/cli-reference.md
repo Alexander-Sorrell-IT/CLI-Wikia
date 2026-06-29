@@ -1,128 +1,193 @@
-# GitHub Copilot CLI Reference
+# CLI Reference
 
-Complete reference for the `copilot` command, derived from `copilot --help`
-(version 1.0.65).
-
-## Usage
+Every `copilot` subcommand and command-line flag. For the interactive `/` commands you use *inside* a session, see [slash-commands.md](slash-commands.md).
 
 ```
 copilot [options] [command]
 ```
 
-Start an interactive session, or use `-p`/`--prompt` for non-interactive
-scripting.
+With no command, `copilot` starts an interactive session. With `-p`/`--prompt` it runs once and exits.
 
-## Commands
+---
 
-| Command | Description |
-|---------|-------------|
-| `completion <shell>` | Generate a shell completion script |
-| `help [topic]` | Display help information |
-| `init` | Initialize Copilot instructions |
-| `login [options]` | Authenticate with Copilot |
-| `mcp` | Manage MCP servers |
-| `plugin` | Manage plugins |
-| `skill` | Manage skills |
-| `update [channel]` | Download the latest version |
-| `version` | Display version information |
+## Subcommands
 
-### Help topics
+| Command | What it does |
+|---|---|
+| `copilot` | Start interactive session |
+| `copilot login [--host <url>]` | Authenticate via OAuth device flow |
+| `copilot init` | Scan the repo and write `.github/copilot-instructions.md` |
+| `copilot mcp …` | Manage MCP servers (`add`/`get`/`list`/`remove`) — see [mcp.md](mcp.md) |
+| `copilot plugin …` | Manage plugins and marketplaces — see [plugins.md](plugins.md) |
+| `copilot skill …` | Manage skills (`add`/`list`/`remove`) — see [skills.md](skills.md) |
+| `copilot update [prerelease]` | Download the latest version (stable by default) |
+| `copilot version` | Show installed version and check for updates |
+| `copilot completion <bash\|zsh\|fish>` | Print a shell completion script to stdout |
+| `copilot help [topic]` | Built-in help. Topics: `billing`, `commands`, `config`, `environment`, `logging`, `monitoring`, `permissions`, `providers` |
 
-`copilot help <topic>` covers: `billing`, `commands`, `config`,
-`environment`, `logging`, `monitoring`, `permissions`, and `providers`
-(Custom Model Providers / BYOK).
+The eight `help` topics are genuinely detailed and are the most authoritative offline reference — `copilot help permissions`, `copilot help providers`, etc.
 
-## Options
+---
+
+## Flags
 
 ### Session & prompting
 
 | Flag | Description |
-|------|-------------|
-| `-p, --prompt <text>` | Execute a prompt non-interactively (exits after) |
-| `-i, --interactive <prompt>` | Start interactive mode and execute this prompt |
+|---|---|
+| `-p, --prompt <text>` | Run a prompt non-interactively, then exit |
+| `-i, --interactive <prompt>` | Start interactive mode and run this prompt first |
 | `--continue` | Resume the most recent session |
-| `-r, --resume[=value]` | Resume a previous session (id, task id, prefix, or name) |
-| `-n, --name <name>` | Name for the new session |
-| `--attachment <path>` | Attach a file to the initial prompt (non-interactive only) |
-| `--enable-memory` | Enable memory in prompt mode (off by default) |
+| `-r, --resume[=value]` | Resume a session by ID, task ID, ID prefix (7+ hex), or exact name |
+| `--connect[=sessionId]` | Connect directly to a remote session/task |
+| `--session-id <id>` | Resume by ID, or set the UUID for a new session |
+| `-n, --name <name>` | Name the new session |
+| `--attachment <path>` | Attach a file (image or document) to the initial prompt (non-interactive only; repeatable) |
+| `--enable-memory` | Enable cross-session memory in prompt mode (off by default there) |
 
-### Model & context
+### Models, context & reasoning
 
 | Flag | Description |
-|------|-------------|
-| `--model <model>` | AI model to use (use `auto` to let Copilot pick) |
-| `--context <tier>` | Context window tier (`default`, `long_context`) |
+|---|---|
+| `--model <model>` | Model to use, or `auto` to let Copilot pick (env: `COPILOT_MODEL`) |
+| `--context <tier>` | Context window tier: `default` or `long_context` |
 | `--effort, --reasoning-effort <level>` | `none`, `low`, `medium`, `high`, `xhigh`, `max` |
+| `--enable-reasoning-summaries` | Request reasoning summaries for OpenAI models |
 
-See [models.md](models.md) for details.
+See [models.md](models.md) and [providers-byok.md](providers-byok.md).
 
 ### Working directory & agents
 
 | Flag | Description |
-|------|-------------|
-| `-C <directory>` | Change working directory first |
-| `--add-dir <directory>` | Add a directory to the allowed list for file access |
-| `--agent <agent>` | Specify a custom agent to use |
+|---|---|
+| `-C <directory>` | Change working directory before doing anything |
+| `--add-dir <directory>` | Add a directory to the file-access allowlist (repeatable) |
+| `--agent <agent>` | Run a named [custom agent](custom-agents.md) |
 
 ### Modes
 
 | Flag | Description |
-|------|-------------|
-| `--mode <mode>` | Initial agent mode (`interactive`, `plan`, `autopilot`) |
+|---|---|
+| `--mode <mode>` | Initial mode: `interactive`, `plan`, `autopilot` |
 | `--plan` | Start in plan mode |
 | `--autopilot` | Start in autopilot mode |
+| `--max-autopilot-continues <count>` | Cap automatic continuation messages in autopilot (default 5) |
 
-See [modes.md](modes.md) for details.
+See [modes.md](modes.md).
 
 ### Permissions
 
 | Flag | Description |
-|------|-------------|
-| `--allow-all` | Enable all permissions (= tools + paths + URLs) |
-| `--allow-all-tools` | Allow all tools to run automatically (env: `COPILOT_ALLOW_ALL`); required for non-interactive mode |
-| `--allow-all-paths` | Allow access to any path |
-| `--allow-all-urls` | Allow access to all URLs without confirmation |
-| `--allow-tool[=tools...]` | Tools the CLI has permission to use |
-| `--deny-tool[=tools...]` | Tools the CLI may not use |
-| `--allow-url[=urls...]` | Allow access to specific URLs or domains |
-| `--deny-url[=urls...]` | Deny URLs/domains (precedence over `--allow-url`) |
-| `--available-tools[=tools...]` | Only these tools will be available to the model |
-| `--excluded-tools[=tools...]` | Tools not available to the model |
-| `--no-ask-user` | Disable the `ask_user` tool (autonomous) |
+|---|---|
+| `--allow-all` / `--yolo` | Enable all permissions (= tools + paths + URLs) |
+| `--allow-all-tools` | Auto-run all tools without confirmation; **required for non-interactive mode** (env: `COPILOT_ALLOW_ALL`) |
+| `--allow-all-paths` | Disable path verification; allow any path |
+| `--allow-all-urls` | Allow all URLs without confirmation |
+| `--allow-tool[=…]` / `--deny-tool[=…]` | Approve/forbid tools by pattern (deny wins) |
+| `--allow-url[=…]` / `--deny-url[=…]` | Approve/forbid URLs or domains (deny wins) |
+| `--available-tools[=…]` | Whitelist the tools the model can see (disables all others) |
+| `--excluded-tools[=…]` | Hide specific tools from the model |
+| `--disallow-temp-dir` | Don't auto-grant access to the system temp dir |
+| `--no-ask-user` | Disable the `ask_user` tool so the agent never pauses to ask |
+| `--secret-env-vars[=VARS]` | Env var names to strip from shell/MCP environments and redact from output |
 
-See [permissions.md](permissions.md) for details.
+See [permissions.md](permissions.md).
 
 ### MCP
 
 | Flag | Description |
-|------|-------------|
-| `--disable-builtin-mcps` | Disable built-in MCP servers (currently: `github-mcp-server`) |
-| `--disable-mcp-server <name>` | Disable a specific MCP server |
+|---|---|
+| `--additional-mcp-config <json>` | Extra MCP servers as JSON string or `@file` (repeatable; augments `~/.copilot/mcp-config.json` for this session) |
+| `--disable-builtin-mcps` | Disable all built-in MCP servers (currently `github-mcp-server`) |
+| `--disable-mcp-server <name>` | Disable one MCP server (repeatable) |
+| `--enable-all-github-mcp-tools` | Enable the full GitHub MCP toolset instead of the default CLI subset |
+| `--add-github-mcp-toolset <toolset>` | Enable a GitHub MCP toolset (repeatable; `all` for everything) |
+| `--add-github-mcp-tool <tool>` | Enable a specific GitHub MCP tool (repeatable; `*` for all) |
 
-See [mcp.md](mcp.md) for details.
+See [mcp.md](mcp.md).
 
-### Plugins
-
-| Flag | Description |
-|------|-------------|
-| `--plugin-dir <directory>` | Load a plugin from a local directory |
-
-### Output, logging & instructions
+### Plugins & instructions
 
 | Flag | Description |
-|------|-------------|
-| `--output-format <format>` | `text` (default) or `json` (JSONL) |
-| `--log-dir <directory>` | Log file directory (default: `~/.copilot/logs/`) |
+|---|---|
+| `--plugin-dir <directory>` | Load a plugin from a local directory (repeatable) |
+| `--no-custom-instructions` | Don't load `AGENTS.md` and related instruction files |
+
+### Output, logging & scripting
+
+| Flag | Description |
+|---|---|
+| `--output-format <text\|json>` | `json` emits JSONL (one object per line) |
+| `-s, --silent` | Output only the agent's response (no stats); pairs with `-p` |
+| `--share[=path]` | After a non-interactive run, write the session to markdown (default `./copilot-session-<id>.md`) |
+| `--share-gist` | After a non-interactive run, write the session to a secret GitHub gist |
+| `--log-dir <directory>` | Log directory (default `~/.copilot/logs/`) |
 | `--log-level <level>` | `none`, `error`, `warning`, `info`, `debug`, `all`, `default` |
-| `--no-custom-instructions` | Disable loading `AGENTS.md` and related files |
+| `--stream <on\|off>` | Toggle streaming output |
+| `--plain-diff` | Disable rich diff rendering (env: `PLAIN_DIFF`) |
+| `--no-color` | Disable color (env: `NO_COLOR`) |
 
-### Protocols & remote
+### Remote control & protocols
 
 | Flag | Description |
-|------|-------------|
-| `--acp` | Start as Agent Client Protocol server |
-| `--remote` | Enable remote control of your session |
-| `--no-remote` | Disable remote control from GitHub web/mobile |
-| `--experimental` | Enable experimental features |
+|---|---|
+| `--remote` / `--no-remote` | Enable/disable remote control from GitHub web and mobile |
+| `--remote-export` / `--no-remote-export` | Export the session read-only to web/mobile (no control) |
+| `--acp` | Start as an [Agent Client Protocol](https://agentclientprotocol.com) server (for editor integration) |
+| `--extension-sdk-path <dir>` | Override the bundled `@github/copilot-sdk` for extension subprocesses |
 
-> Verify exact values in the official docs / run `copilot --help`.
+### Terminal & UX
+
+| Flag | Description |
+|---|---|
+| `--banner` | Show the startup banner |
+| `--mouse` / `--no-mouse` | Mouse support in alt-screen mode (persists to config) |
+| `--bash-env` / `--no-bash-env` | Toggle `BASH_ENV` support for bash shells (persists) |
+| `--screen-reader` | Screen-reader optimizations |
+
+### Misc
+
+| Flag | Description |
+|---|---|
+| `--experimental` / `--no-experimental` | Toggle experimental features |
+| `--no-auto-update` | Don't auto-download updates (env: `COPILOT_AUTO_UPDATE=false`) |
+| `-v, --version` | Print version |
+| `-h, --help` | Help for a command |
+
+---
+
+## Common usage
+
+```bash
+# One-shot, fully autonomous, scriptable
+copilot -p "run the test suite and fix failures" --allow-all-tools --silent
+
+# Allow all git except push
+copilot --allow-tool='shell(git:*)' --deny-tool='shell(git push)'
+
+# Allow all but one tool from an MCP server named MyMCP
+copilot --deny-tool='MyMCP(denied_tool)' --allow-tool='MyMCP'
+
+# Pick a model and a big context window
+copilot --model gpt-5.4 --context long_context
+
+# Plan first, then implement on autopilot
+copilot --plan -i "design the migration"
+
+# Resume the last session with auto-approval
+copilot --allow-all-tools --resume
+
+# JSONL output for a pipeline
+copilot -p "list the dependencies" --output-format json --allow-all-tools
+
+# Start a fresh session at a specific UUID
+copilot --session-id=0cb916db-26aa-40f2-86b5-1ba81b225fd2
+```
+
+---
+
+## See also
+
+- [slash-commands.md](slash-commands.md) — interactive `/` commands
+- [environment-variables.md](environment-variables.md) — env-var equivalents of many flags
+- [cli-vs-api.md](cli-vs-api.md) — when to use the CLI vs a programmatic API

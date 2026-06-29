@@ -26,6 +26,8 @@ So the split here is:
   (see the [gemini](../gemini/cli-vs-api.md) and [chatgpt](../chatgpt/cli-vs-api.md) pages).
 - **CLI (`agy`)** — hands-on, multi-model agentic coding in the terminal.
 
-> Rule of thumb: **API for programs, CLI for people.** Antigravity is firmly a
-> people-facing agent; verify whether it exposes any programmatic API in the
-> official Google docs.
+> Rule of thumb: **API for programs, CLI for people.** Antigravity is primarily a
+> people-facing agent, but it *also* ships a programmatic surface — the public
+> **Antigravity Python SDK** (`pip install google-antigravity`) — for embedding
+> agents in code. See [sdk.md](./sdk.md). The SDK orchestrates the same agents;
+> the underlying *model* APIs (Gemini, Anthropic, …) remain separate.

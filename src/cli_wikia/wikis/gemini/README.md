@@ -1,51 +1,161 @@
-# Gemini CLI
+# Gemini CLI: The Complete Wiki
 
-Gemini CLI is Google's command-line coding assistant. Launch an interactive
-session, or run one-shot prompts with `-p`/`--prompt` (or a positional query)
-for non-interactive scripting and automation.
+A comprehensive reference for **Gemini CLI** — Google's open-source, terminal-based
+AI coding agent (`gemini`). Each file is self-contained; read what you need.
 
-- **Tool:** `gemini`
-- **Version referenced:** 0.22.4
+> Sourced from the official docs at <https://google-gemini.github.io/gemini-cli/>
+> and the `google-gemini/gemini-cli` repository. Cross-checked against the
+> installed binary (**v0.22.4**). Some documented features ship in newer
+> releases than 0.22.4 — those are flagged inline. Anything uncertain is marked
+> "verify in official docs."
 
-## Quick start
+---
+
+## Install & first run
 
 ```bash
-# Interactive session
-gemini
-
-# One-shot prompt (non-interactive, prints and exits)
-gemini "explain this repository"
-
-# Run a prompt, then drop into interactive mode
-gemini -i "summarize the open TODOs"
-
-# Pick a model
-gemini -m <model> "write a unit test for utils.py"
-
-# Auto-approve all actions (YOLO)
-gemini -y "refactor the logging module"
-
-# Resume the most recent session
-gemini --resume latest
+npm install -g @google/gemini-cli   # or: npx https://github.com/google-gemini/gemini-cli
+gemini                              # launches the REPL; pick an auth method on first run
 ```
 
-## Topics
+Authenticate with **Sign in with Google** (free tier), a **Gemini API key**, or
+**Vertex AI / Code Assist** for enterprise. See [getting-started.md](./getting-started.md).
 
-| File | Description |
-|------|-------------|
-| [cli-reference.md](cli-reference.md) | Full flags, options, and subcommands |
-| [models.md](models.md) | Selecting a model with `-m`/`--model` |
-| [configuration.md](configuration.md) | Config locations and environment |
-| [mcp.md](mcp.md) | Managing MCP servers (`gemini mcp`) |
-| [extensions.md](extensions.md) | Managing Gemini CLI extensions |
-| [sessions.md](sessions.md) | Resume, list, and delete sessions |
+---
+
+## The mental model
+
+Gemini CLI is an agentic loop over Gemini models with several layers of control.
+From the model's prompt outward to hard, harness-enforced gates:
+
+```
+  Enforced by      ┌───────────────────────────────────────────────┐
+  the harness      │  Folder Trust  (is this workspace trusted?)   │
+   ───────────────►├───────────────────────────────────────────────┤
+                   │  Policy Engine + Approval Modes (allow/ask/deny)│
+                   ├───────────────────────────────────────────────┤
+                   │  Sandboxing (Seatbelt / Docker / Podman)       │
+                   ├───────────────────────────────────────────────┤
+                   │  Hooks (lifecycle scripts that can block)      │
+   ───────────────►├───────────────────────────────────────────────┤
+  Model-driven     │  Subagents (delegated, isolated tasks)         │
+                   ├───────────────────────────────────────────────┤
+                   │  Tools: file, shell, web, MCP, memory, todos   │
+                   ├───────────────────────────────────────────────┤
+                   │  Skills + custom commands + MCP prompts        │
+   ───────────────►├───────────────────────────────────────────────┤
+  Always-loaded    │  GEMINI.md context  +  settings.json           │
+                   ├───────────────────────────────────────────────┤
+                   │  Model (auto / pro / flash / flash-lite)       │
+                   ├───────────────────────────────────────────────┤
+                   │  Core CLI / REPL  (gemini binary)              │
+                   └───────────────────────────────────────────────┘
+```
+
+Configuration stacks: **defaults → system defaults → user → project → system →
+env vars → CLI flags** (later wins). The system *settings* file sits above user
+and project files so admins can enforce policy — see [enterprise.md](./enterprise.md).
+
+---
+
+## Files in this wiki
+
+### Core
+
+| File | What it covers |
+|---|---|
+| [cli-reference.md](./cli-reference.md) | Every `gemini` subcommand, flag, and positional argument |
+| [getting-started.md](./getting-started.md) | Install, authentication options, quota/pricing, first tasks, uninstall |
+| [commands.md](./commands.md) | Slash (`/`), at (`@`), and shell (`!`) commands inside the REPL |
+| [models.md](./models.md) | Aliases (`auto`/`pro`/`flash`/`flash-lite`), model routing, steering, generation settings, Gemini 3, Gemma |
+
+### Configuration
+
+| File | What it covers |
+|---|---|
+| [configuration.md](./configuration.md) | Settings-file locations, the seven config layers, precedence, `.env` loading |
+| [settings.md](./settings.md) | Every `settings.json` category and its notable fields |
+| [environment-variables.md](./environment-variables.md) | All `GEMINI_*` / `GOOGLE_*` env vars and secret redaction |
+| [context-files.md](./context-files.md) | `GEMINI.md` hierarchical context, `/memory`, the memory import processor, auto-memory, `.geminiignore` |
+| [custom-commands.md](./custom-commands.md) | Personal `/` commands via TOML — args, shell `!{}`, file `@{}` injection |
+| [themes.md](./themes.md) | Built-in & custom themes, keyboard shortcuts, terminal notifications |
+
+### Tools, MCP & extensions
+
+| File | What it covers |
+|---|---|
+| [tools.md](./tools.md) | The built-in tool set (file, shell, web fetch/search, memory, todos, …) and how tools are gated |
+| [mcp.md](./mcp.md) | Model Context Protocol — `gemini mcp`, transports, OAuth, `@server` resources, MCP prompts |
+| [extensions.md](./extensions.md) | `gemini-extension.json`, the `gemini extensions` lifecycle, what extensions bundle |
+| [skills.md](./skills.md) | Agent Skills — `SKILL.md`, discovery tiers, `gemini skills` / `/skills` |
+
+### Agents, hooks & automation
+
+| File | What it covers |
+|---|---|
+| [subagents.md](./subagents.md) | Local and remote subagents (🔬), definitions, `/agents`, delegation |
+| [hooks.md](./hooks.md) | Lifecycle hooks, events, the I/O contract, `/hooks`, blocking behavior |
+| [headless.md](./headless.md) | Non-interactive scripting, `--output-format`, ACP mode, system-prompt override |
+
+### Safety & control
+
+| File | What it covers |
+|---|---|
+| [permissions.md](./permissions.md) | Approval modes, the Policy Engine, Trusted Folders, Plan Mode |
+| [sandboxing.md](./sandboxing.md) | macOS Seatbelt profiles, Docker/Podman containers, custom sandbox Dockerfiles |
+| [checkpointing.md](./checkpointing.md) | Automatic pre-edit snapshots, `/restore`, and Rewind |
+| [sessions.md](./sessions.md) | Auto-saved sessions, `/resume` & chat checkpoints, retention, deletion |
+| [git-worktrees.md](./git-worktrees.md) | Per-session isolated checkouts via `-w/--worktree` (🔬) |
+
+### Operations
+
+| File | What it covers |
+|---|---|
+| [enterprise.md](./enterprise.md) | System-settings lockdown, admin controls, telemetry (OpenTelemetry), token caching |
+| [ide-integration.md](./ide-integration.md) | VS Code / Cursor / Windsurf / Zed companions, `/ide`, native diffing |
+| [cli-vs-api.md](./cli-vs-api.md) | When to use the Gemini CLI vs the Gemini API |
+
+---
+
+## Quick decision tree
+
+| You want to… | Go to |
+|---|---|
+| Install and sign in | [getting-started.md](./getting-started.md) |
+| Look up a flag | [cli-reference.md](./cli-reference.md) |
+| Run a slash/at/shell command | [commands.md](./commands.md) |
+| Pick or route a model | [models.md](./models.md) |
+| Tell Gemini about your project | [context-files.md](./context-files.md) |
+| Tune a `settings.json` field | [settings.md](./settings.md) |
+| Connect GitHub / a database / an API | [mcp.md](./mcp.md) |
+| Add or build an extension | [extensions.md](./extensions.md) |
+| Give Gemini on-demand expertise | [skills.md](./skills.md) |
+| Delegate isolated work | [subagents.md](./subagents.md) |
+| **Force** behavior deterministically | [hooks.md](./hooks.md) |
+| Control what runs without prompting | [permissions.md](./permissions.md) |
+| Isolate tool execution at the OS level | [sandboxing.md](./sandboxing.md) |
+| Undo file changes a tool made | [checkpointing.md](./checkpointing.md) |
+| Script Gemini non-interactively | [headless.md](./headless.md) |
+| Lock it down for an organization | [enterprise.md](./enterprise.md) |
+
+---
 
 ## Commands at a glance
 
 | Command | Purpose |
-|---------|---------|
-| `gemini [query..]` | Launch Gemini CLI (default) |
-| `gemini mcp` | Manage MCP servers |
-| `gemini extensions <command>` | Manage Gemini CLI extensions |
+|---|---|
+| `gemini` | Launch the interactive REPL |
+| `gemini -p "…"` | One-shot, non-interactive query |
+| `gemini -r latest "…"` | Resume the most recent session |
+| `gemini mcp …` | Manage [MCP servers](./mcp.md) |
+| `gemini extensions …` | Manage [extensions](./extensions.md) |
+| `gemini skills …` | Manage [Agent Skills](./skills.md) *(newer releases)* |
+| `gemini update` | Update to the latest version |
 
-> Verify exact values in the official docs / run `gemini --help`.
+---
+
+## Reference
+
+Full live documentation: <https://google-gemini.github.io/gemini-cli/>
+· Repository: <https://github.com/google-gemini/gemini-cli>
+· Settings schema: `schemas/settings.schema.json`

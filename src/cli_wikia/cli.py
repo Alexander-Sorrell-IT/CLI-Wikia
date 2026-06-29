@@ -27,36 +27,51 @@ MODEL_CLIS = {
     "antigravity": "agy",  # Google Antigravity CLI
 }
 
-# Sources the `update` command checks for changes, per model.
-#  - probes: safe, read-only CLI invocations (NO `update`/`login` — those have
-#    side effects). `changelog` is included only where it just prints notes.
+# Sources the `update` command checks for changes, per model. The real signal
+# comes from (1) the official docs and (2) asking the model itself — NOT a
+# `--help` dump. `version` is just a cheap authoritative version string.
+#  - version: read-only version probe (no side effects).
 #  - docs: official documentation URL (best-effort; edit if a tool moves its docs).
+#  - ask: argv template to query the model in one-shot mode; "{q}" = the question.
+#         None means the model can't be queried that way (e.g. tool not installed).
 MODEL_SOURCES = {
     "claude": {
-        "probes": [["--version"], ["--help"]],
+        "version": ["--version"],
         "docs": "https://docs.claude.com/en/docs/claude-code/overview",
+        "ask": ["-p", "{q}"],
     },
     "deepseek": {
-        "probes": [["--version"], ["--help"]],
+        "version": ["--version"],
         "docs": "https://api-docs.deepseek.com/",
+        "ask": ["-p", "{q}"],
     },
     "copilot": {
-        "probes": [["--version"], ["--help"]],
+        "version": ["--version"],
         "docs": "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli",
+        "ask": ["-p", "{q}", "--allow-all-tools"],
     },
     "chatgpt": {
-        "probes": [["--version"], ["--help"]],
+        "version": ["--version"],
         "docs": "https://developers.openai.com/codex/cli/",
+        "ask": None,  # codex isn't installed; openai CLI isn't a one-shot agent
     },
     "gemini": {
-        "probes": [["--version"], ["--help"]],
+        "version": ["--version"],
         "docs": "https://google-gemini.github.io/gemini-cli/",
+        "ask": ["-p", "{q}"],
     },
     "antigravity": {
-        "probes": [["--version"], ["--help"], ["changelog"]],
+        "version": ["--version"],
         "docs": "https://antigravity.google/docs",
+        "ask": ["-p", "{q}"],
     },
 }
+
+# What `update` asks each model about itself.
+WHATS_NEW_Q = (
+    "What is your exact version, and what are your most recent features, "
+    "commands, or changes? Be specific and concise."
+)
 
 
 def wikis_root():
@@ -175,14 +190,14 @@ def snapshot_dir():
     return os.path.join(base, "cli-wikia", "snapshots")
 
 
-def _run_cli(cli, probe):
+def _run_cli(cli, probe, timeout=30):
     """Run one read-only CLI probe and return its labelled output."""
     try:
         r = subprocess.run(
             [cli, *probe],
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=timeout,
             stdin=subprocess.DEVNULL,
         )
         return f"$ {cli} {' '.join(probe)}\n{r.stdout}{r.stderr}".strip()
@@ -208,26 +223,32 @@ def fetch_docs(url):
     return f"# docs: {url}\n{text[:8000]}"
 
 
-def ask_model_whats_new(cli):
-    """Optionally ask the model itself what changed. UNRELIABLE — models often
-    don't know their own changelog — so the output is labelled as such."""
-    prompt = (
-        "In 5 bullet points, what are the newest features or recent changes in "
-        "this very CLI tool/version? If you are not sure, say so explicitly."
-    )
-    out = _run_cli(cli, ["-p", prompt])
-    return "# model-generated (UNVERIFIED — may be inaccurate):\n" + out
+def query_model(cli, ask_template, question):
+    """Ask the model itself, in one-shot mode, via its per-model invocation."""
+    if not ask_template:
+        return None
+    argv = [question if tok == "{q}" else tok for tok in ask_template]
+    out = _run_cli(cli, argv, timeout=180)  # models take a while
+    return "# model self-report (the model's own answer about itself):\n" + out
 
 
-def capture_sources(m, cli, use_docs, ask_model):
-    """Gather all configured sources for a model into one snapshot blob."""
-    src = MODEL_SOURCES.get(m, {"probes": [["--version"], ["--help"]], "docs": None})
-    parts = [_run_cli(cli, probe) for probe in src["probes"]]
+def capture_sources(m, cli, use_docs, use_model):
+    """Gather ALL THREE sources for a model into one snapshot blob:
+    (1) the CLI's own facts (version + help), (2) the official docs, and
+    (3) the model's self-report. Docs and the model are the real depth; help is
+    the factual cross-check. Use --no-docs / --no-model to drop a source."""
+    src = MODEL_SOURCES.get(m, {})
+    parts = [
+        _run_cli(cli, src.get("version", ["--version"])),
+        _run_cli(cli, ["--help"]),
+    ]
     if use_docs and src.get("docs"):
         parts.append(fetch_docs(src["docs"]))
-    if ask_model:
-        parts.append(ask_model_whats_new(cli))
-    return "\n\n".join(parts) + "\n"
+    if use_model and src.get("ask"):
+        mq = query_model(cli, src["ask"], WHATS_NEW_Q)
+        if mq:
+            parts.append(mq)
+    return "\n\n".join(p for p in parts if p) + "\n"
 
 
 def cmd_update(args):
@@ -241,6 +262,7 @@ def cmd_update(args):
         sys.exit("specify a model (e.g. `wikia update gemini`) or use `--all`.")
     models = MODELS if args.all else [resolve_model(args.model)]
     use_docs = not args.no_docs
+    use_model = not args.no_model
     sdir = snapshot_dir()
     os.makedirs(sdir, exist_ok=True)
     changed_any = False
@@ -252,8 +274,8 @@ def cmd_update(args):
         if not shutil.which(cli):
             print(f"{m:12} '{cli}' not installed — can't check for updates")
             continue
-        sources = "help/version" + (" + docs" if use_docs else "") + (" + model" if args.ask_model else "")
-        current = capture_sources(m, cli, use_docs, args.ask_model)
+        sources = "help/version" + (" + docs" if use_docs else "") + (" + model" if use_model else "")
+        current = capture_sources(m, cli, use_docs, use_model)
         snap = os.path.join(sdir, f"{m}.txt")
         if not os.path.exists(snap):
             with open(snap, "w", encoding="utf-8") as f:
@@ -330,7 +352,7 @@ def build_parser():
     sp.add_argument("--all", action="store_true", help="check every model")
     sp.add_argument("--write", action="store_true", help="accept current state as the new baseline")
     sp.add_argument("--no-docs", action="store_true", help="skip fetching official docs (offline / faster)")
-    sp.add_argument("--ask-model", action="store_true", help="also ask the model what changed (UNRELIABLE, labelled)")
+    sp.add_argument("--no-model", action="store_true", help="skip asking the model itself (faster)")
     sp.set_defaults(func=cmd_update)
 
     # hooks (Level 1 awareness + Level 2 tailored hooks) — see hooks.py

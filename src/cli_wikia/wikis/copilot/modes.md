@@ -1,54 +1,80 @@
-# Agent Modes (GitHub Copilot CLI)
+# Modes & Autonomy
 
-GitHub Copilot CLI can start in different agent modes that control how much it
-plans versus acts.
+Copilot CLI can run at different levels of autonomy — from asking before every action, to planning first, to running unattended, to handing the whole task to GitHub's cloud agent.
 
-## Setting the mode
+---
 
-```bash
-copilot --mode plan -i "outline the refactor"
-```
+## The three agent modes
 
-| Flag | Values | Description |
-|------|--------|-------------|
-| `--mode <mode>` | `interactive`, `plan`, `autopilot` | Initial agent mode |
+Set the starting mode with `--mode <interactive|plan|autopilot>`, or the shortcut flags `--plan` / `--autopilot`. Switch live with `/plan`, `/autopilot`, or Shift+Tab.
 
-There are also dedicated shortcut flags:
-
-| Flag | Equivalent |
-|------|------------|
-| `--plan` | Start in plan mode |
-| `--autopilot` | Start in autopilot mode |
-
-## The modes
-
-| Mode | Description |
-|------|-------------|
-| `interactive` | Standard interactive session — Copilot asks before acting |
-| `plan` | Plan mode — focuses on producing a plan |
-| `autopilot` | Autopilot mode — runs more autonomously |
+| Mode | Behavior |
+|---|---|
+| `interactive` | Default. Chats and acts, but asks for approval on file edits and commands |
+| `plan` | Produces an implementation plan *before* writing code — good for reviewing an approach with your team first |
+| `autopilot` | Runs more autonomously, continuing through multi-step work without stopping for each approval |
 
 ```bash
-# Plan first
 copilot --plan -i "design the migration"
-
-# Autopilot
-copilot --autopilot -p "implement the migration"
+copilot --autopilot -p "implement the migration" --allow-all-tools
 ```
 
-## Combining with permissions
+### Plan mode
 
-Autopilot and non-interactive runs usually need broader permissions. Recall
-that `--allow-all-tools` (or `COPILOT_ALLOW_ALL`) is required for
-non-interactive mode. See [permissions.md](permissions.md).
+Plan mode decomposes a task into steps you can review and edit (open it in your editor via `COPILOT_EDITOR`/`EDITOR`). It's a collaborative step, not a commitment — you approve before execution. In OTel traces it shows up as a dedicated `plan` span.
+
+### Autopilot mode
+
+Autopilot keeps the agent moving through continuation steps on its own. To stop usage running away unattended, it **pauses after a number of automatic continuations** (default **5**):
 
 ```bash
-copilot --autopilot --allow-all -p "build and test the project"
+copilot --autopilot --max-autopilot-continues 20 -p "build and test" --allow-all-tools
 ```
 
-## Related
+Autopilot is most useful combined with broad permissions and `--no-ask-user`:
 
-- `--no-ask-user` makes a session more autonomous by disabling the
-  `ask_user` tool — see [permissions.md](permissions.md).
+```bash
+copilot --autopilot --allow-all --no-ask-user -p "run the full workflow"
+```
 
-> Verify exact values in the official docs / run `copilot --help`.
+---
+
+## Fleet mode (parallel subagents)
+
+`/fleet` enables **fleet mode**, running multiple subagents in parallel. Subagents are isolated workers Copilot spins up for sub-tasks (exploration, execution, review, research, general-purpose). Manage them with:
+
+- `/tasks` — view and manage tasks (subagents and shell commands).
+- `/sidekicks` — view running sidekick agents.
+- `/subagents` — configure default and per-agent subagent models (each field can `inherit` the parent session's model/effort/context). Persisted under `subagents.agents.<name>` in `settings.json`.
+
+---
+
+## Delegating to the cloud coding agent
+
+`/delegate` sends the current session to GitHub, where the **Copilot coding agent** continues the work in the cloud and opens a **pull request** for you. This is different from local autopilot — the work runs on GitHub's infrastructure, not your machine.
+
+Related session bridges:
+
+- `--remote` / `/remote` — let GitHub web and mobile **control** your running local session.
+- `--remote-export` — **export** the session read-only to web/mobile (no control).
+- `--connect[=sessionId]` — attach directly to a remote session/task.
+
+---
+
+## Choosing a mode
+
+| You want to… | Use |
+|---|---|
+| Stay in the loop, approve each step | `interactive` (default) |
+| Agree on an approach before any code | `plan` (`--plan`, Shift+Tab) |
+| Let it grind through a well-scoped task | `autopilot` + permissions |
+| Parallelize independent sub-tasks | `/fleet` |
+| Offload the whole task and get a PR | `/delegate` |
+
+---
+
+## See also
+
+- [permissions.md](permissions.md) — what autonomy needs in terms of grants
+- [slash-commands.md](slash-commands.md) — `/plan`, `/autopilot`, `/fleet`, `/delegate`, `/tasks`
+- [sessions.md](sessions.md) — remote control and export
