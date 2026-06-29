@@ -6,6 +6,8 @@ reference wiki for AI coding CLIs. Run `wikia --help` for usage.
 from __future__ import annotations
 
 import argparse
+import difflib
+import os
 import shutil
 import subprocess
 import sys
@@ -132,15 +134,87 @@ def cmd_ask(args):
         sys.exit(f"could not run '{runner}'.")
 
 
-def cmd_update(args):
-    """Phase 2 placeholder: refresh a model's docs from its source."""
-    m = resolve_model(args.model)
-    cli = MODEL_CLIS.get(m)
-    print(
-        f"update for '{m}' is not implemented yet.\n"
-        f"planned source: {cli + ' CLI' if cli else 'official online docs'}.\n"
-        f"for now, edit files directly: {model_dir(m)}"
+def snapshot_dir():
+    """Writable per-user dir where CLI ground-truth snapshots are stored."""
+    base = os.environ.get("XDG_STATE_HOME") or os.path.join(
+        os.path.expanduser("~"), ".local", "state"
     )
+    return os.path.join(base, "cli-wikia", "snapshots")
+
+
+def capture_cli(cli):
+    """Capture a model CLI's --version and --help as the ground-truth snapshot."""
+    parts = []
+    for probe in (["--version"], ["--help"]):
+        try:
+            r = subprocess.run(
+                [cli, *probe],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                stdin=subprocess.DEVNULL,
+            )
+            parts.append(f"$ {cli} {' '.join(probe)}\n{r.stdout}{r.stderr}".strip())
+        except (subprocess.TimeoutExpired, OSError) as e:
+            parts.append(f"$ {cli} {' '.join(probe)}\n<error: {e}>")
+    return "\n\n".join(parts) + "\n"
+
+
+def cmd_update(args):
+    """Check each installed model CLI for changes vs the last saved snapshot.
+
+    Re-captures the tool's own --version/--help (ground truth, no API keys) and
+    reports what changed, so curated docs can be refreshed. Never overwrites the
+    curated .md files; snapshots live in the user state dir.
+    """
+    if not args.all and not args.model:
+        sys.exit("specify a model (e.g. `wikia update gemini`) or use `--all`.")
+    models = MODELS if args.all else [resolve_model(args.model)]
+    sdir = snapshot_dir()
+    os.makedirs(sdir, exist_ok=True)
+    changed_any = False
+    for m in models:
+        cli = MODEL_CLIS.get(m)
+        if not cli:
+            print(f"{m:12} no associated CLI — skip")
+            continue
+        if not shutil.which(cli):
+            print(f"{m:12} '{cli}' not installed — can't check for updates")
+            continue
+        current = capture_cli(cli)
+        snap = os.path.join(sdir, f"{m}.txt")
+        if not os.path.exists(snap):
+            with open(snap, "w", encoding="utf-8") as f:
+                f.write(current)
+            print(f"{m:12} baseline snapshot saved ({cli}). Run again later to detect changes.")
+            continue
+        with open(snap, encoding="utf-8") as f:
+            prev = f.read()
+        if prev == current:
+            print(f"{m:12} up to date ({cli}, no change since last snapshot)")
+            continue
+        changed_any = True
+        diff = [
+            ln
+            for ln in difflib.unified_diff(
+                prev.splitlines(), current.splitlines(), lineterm="", n=0
+            )
+            if ln and ln[0] in "+-" and not ln.startswith(("+++", "---"))
+        ]
+        print(f"{m:12} CHANGED ({cli}) — {len(diff)} differing lines:")
+        for ln in diff[:30]:
+            print(f"             {ln}")
+        if len(diff) > 30:
+            print(f"             … (+{len(diff) - 30} more)")
+        print(f"             review/update curated docs in: {model_dir(m)}")
+        if args.write:
+            with open(snap, "w", encoding="utf-8") as f:
+                f.write(current)
+            print(f"             snapshot updated (acknowledged).")
+        else:
+            print(f"             re-run with --write to accept this as the new baseline.")
+    if changed_any and not args.write:
+        print("\nTip: `wikia update --all --write` after you've refreshed the docs.")
 
 
 def build_parser():
@@ -179,8 +253,10 @@ def build_parser():
     sp.add_argument("--max-context", type=int, default=24000, help="max chars of docs to feed")
     sp.set_defaults(func=cmd_ask)
 
-    sp = sub.add_parser("update", help="(phase 2) refresh a model's docs from its source")
-    sp.add_argument("model")
+    sp = sub.add_parser("update", help="check a model's CLI for changes vs the last snapshot")
+    sp.add_argument("model", nargs="?", help="model name (omit and use --all for every model)")
+    sp.add_argument("--all", action="store_true", help="check every model")
+    sp.add_argument("--write", action="store_true", help="accept current state as the new baseline")
     sp.set_defaults(func=cmd_update)
 
     return p
