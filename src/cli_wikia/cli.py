@@ -333,6 +333,39 @@ def build_parser():
     sp.add_argument("--ask-model", action="store_true", help="also ask the model what changed (UNRELIABLE, labelled)")
     sp.set_defaults(func=cmd_update)
 
+    # hooks (Level 1 awareness + Level 2 tailored hooks) — see hooks.py
+    from . import hooks as H
+
+    hp = sub.add_parser("hooks", help="integrate the wiki into a model (awareness + real hooks)")
+    hsub = hp.add_subparsers(dest="hooks_cmd", required=True)
+
+    s = hsub.add_parser("status", help="show integration status per model")
+    s.add_argument("model", nargs="?")
+    s.add_argument("--all", action="store_true")
+    s.set_defaults(func=H.cmd_status)
+
+    s = hsub.add_parser("enable", help="Level 1: tell a model the wiki exists (dry-run unless --write)")
+    s.add_argument("model")
+    s.add_argument("--file", help="instructions file to write (default: per-model convention)")
+    s.add_argument("--write", action="store_true", help="actually write the change")
+    s.set_defaults(func=H.cmd_enable)
+
+    s = hsub.add_parser("disable", help="Level 1: remove the wiki awareness block")
+    s.add_argument("model")
+    s.add_argument("--file")
+    s.add_argument("--write", action="store_true")
+    s.set_defaults(func=H.cmd_disable)
+
+    s = hsub.add_parser("manifest", help="Level 2: generate the hook-positions doc from the wiki")
+    s.add_argument("model")
+    s.set_defaults(func=H.cmd_manifest)
+
+    s = hsub.add_parser("apply", help="Level 2: install the edited hooks (dry-run unless --write)")
+    s.add_argument("model")
+    s.add_argument("--file", help="target settings file (default: per-model)")
+    s.add_argument("--write", action="store_true", help="actually install the hooks")
+    s.set_defaults(func=H.cmd_apply)
+
     return p
 
 
