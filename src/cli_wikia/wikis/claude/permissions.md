@@ -247,3 +247,8 @@ Disables the Explore subagent. Use without parens (`Agent`) to gate the Agent to
 - [sandboxing.md](./sandboxing.md) — OS-level enforcement for Bash
 - [hooks.md](./hooks.md) — `PreToolUse` for custom validation
 - [settings.md](./settings.md) — full settings hierarchy
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

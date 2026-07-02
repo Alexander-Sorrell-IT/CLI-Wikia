@@ -32,3 +32,11 @@ The **API is the foundation**; the CLIs sit on top of it:
 
 > Rule of thumb: **API for programs, CLI for people.** An agent CLI (Codex) is
 > "a person-style tool that acts on its own," still powered by the API underneath.
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

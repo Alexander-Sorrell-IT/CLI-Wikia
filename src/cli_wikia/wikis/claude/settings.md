@@ -272,6 +272,44 @@ See `channelsEnabled`, `allowedChannelPlugins`.
 |---|---|
 | `env` | `{"VAR": "value"}` — env vars for every session |
 
+### Additional keys (verified against official docs 2026-07-02)
+
+| Key | What it does |
+|---|---|
+| `advisorModel` | Model for the server-side advisor tool |
+| `agentPushNotifEnabled` | Remote Control push notifications |
+| `allowAllClaudeAiMcps` | Load claude.ai connectors alongside managed MCP |
+| `allowManagedPermissionRulesOnly` | (Managed) Only managed permission rules respected |
+| `autoCompactEnabled` | Auto-compact conversations |
+| `autoMode.classifyAllShell` | Route all shell commands through the auto-mode classifier |
+| `axScreenReader` | Screen-reader-friendly (flat text) output |
+| `claudeMd` | (Managed/policy only) Org-wide CLAUDE.md content inline in settings |
+| `claudeMdExcludes` | Glob patterns of CLAUDE.md files to skip (arrays merge across layers) |
+| `disableAgentView` | Disable background agents |
+| `disableArtifact` / `enableArtifact` | Toggle the Artifact tool |
+| `disableBundledSkills` | Disable bundled skills/workflows |
+| `disableClaudeAiConnectors` | Disable claude.ai MCP connectors |
+| `disableDeepLinkRegistration` | Prevent `claude-cli://` protocol handler registration |
+| `disableRemoteControl` | Disable Remote Control |
+| `disableSideloadFlags` | (Managed) Reject sideload CLI flags |
+| `disableWorkflows` | Disable dynamic workflows |
+| `enforceAvailableModels` | Extend the `availableModels` allowlist to the Default model |
+| `fallbackModel` | Fallback model(s) when primary is unavailable |
+| `fileCheckpointingEnabled` | Enable `/rewind` file checkpointing |
+| `footerLinksRegexes` | Clickable footer badges from regex patterns |
+| `forceLoginGatewayUrl` | (Managed) Lock the gateway URL |
+| `gcpAuthRefresh` | GCP credential refresh script |
+| `inputNeededNotifEnabled` | Push notification when input is needed |
+| `parentSettingsBehavior` | (Managed) How managed settings merge with lower scopes |
+| `pluginSuggestionMarketplaces` | Marketplaces used for plugin suggestions |
+| `policyHelper` | (Managed) Executable producing dynamic managed settings |
+| `preferredNotifChannel` | Preferred notification method |
+| `remoteControlAtStartup` | Auto-connect Remote Control at startup |
+| `requiredMinimumVersion` / `requiredMaximumVersion` | (Managed) Enforced version floor/ceiling |
+| `verboseLogging` | Enable verbose logging |
+
+> `forceLoginMethod` also accepts `"gateway"` (in addition to `"claudeai"` and `"console"`).
+
 ---
 
 ## Worked example
@@ -340,3 +378,12 @@ See `channelsEnabled`, `allowedChannelPlugins`.
 - [sandboxing.md](./sandboxing.md) — full `sandbox.*` semantics
 - [hooks.md](./hooks.md) — `hooks` shape
 - [environment-variables.md](./environment-variables.md) — env vars vs settings
+
+---
+
+## Sources
+
+- Settings reference — <https://code.claude.com/docs/en/settings> (Accessed 2026-07-02). File locations, precedence order, and the documented key list verified against this page.
+- Memory / managed CLAUDE.md — <https://code.claude.com/docs/en/memory> (Accessed 2026-07-02) for `claudeMd` and `claudeMdExcludes`.
+- Corroborated against `claude --version` 2.1.198 on 2026-07-02.
+- Note: `sandbox.*`, `worktree.*`, `voice.*`, `statusLine.*`, `teammateMode`, and `sshConfigs` are documented on their own dedicated pages rather than the main settings reference; retained here as of 2026-07-02.

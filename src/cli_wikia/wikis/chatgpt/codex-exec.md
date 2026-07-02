@@ -102,3 +102,11 @@ codex exec --sandbox read-only --ask-for-approval never --json \
 - [codex-cli-reference.md](./codex-cli-reference.md) — full flag list
 - [codex-approvals-sandbox.md](./codex-approvals-sandbox.md) — safe automation presets
 - [codex-auth.md](./codex-auth.md) — access tokens for CI
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

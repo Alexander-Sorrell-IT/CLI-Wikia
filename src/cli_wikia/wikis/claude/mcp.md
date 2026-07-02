@@ -367,3 +367,11 @@ mcpServers:
 - [hooks.md](./hooks.md) — intercepting MCP tool calls, `Elicitation*` events
 - [channels.md](./channels.md) — using MCP for push events
 - [environment-variables.md](./environment-variables.md) — `MCP_TIMEOUT`, `MAX_MCP_OUTPUT_TOKENS`
+
+---
+
+## Sources
+
+- Connect Claude Code to tools via MCP — <https://code.claude.com/docs/en/mcp> (Accessed 2026-07-02). Transports (stdio/http/sse), `claude mcp add` syntax, scopes, `.mcp.json`, OAuth, and `mcp__<server>__<tool>` naming verified here.
+- Settings reference — <https://code.claude.com/docs/en/settings> (Accessed 2026-07-02): MCP scope storage (`local`/`user` → `~/.claude.json`, `project` → `.mcp.json`) and managed MCP keys.
+- SSE transport is documented as deprecated in favor of HTTP as of 2026-07-02.

@@ -189,3 +189,8 @@ apikeys.txt
 - [settings.md](./settings.md) — `experimental.autoMemory`
 - [commands.md](./commands.md) — `/memory`, `@` file references
 - [subagents.md](./subagents.md) — Agent Skills promoted by Auto Memory
+
+## Sources
+
+- Context / memory docs — https://geminicli.com/docs/ (Accessed 2026-07-02)
+- Settings schema (`context.fileName`) — https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json (Accessed 2026-07-02). Default context file name is `GEMINI.md`; `context.fileName` accepts a string or array of alternate names.

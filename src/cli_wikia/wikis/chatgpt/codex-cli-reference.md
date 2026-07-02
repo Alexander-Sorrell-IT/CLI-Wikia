@@ -134,3 +134,11 @@ codex -i bug.png "the layout is broken like this — fix the CSS"
 - [codex-approvals-sandbox.md](./codex-approvals-sandbox.md) — what `--sandbox` / `--ask-for-approval` mean
 - [codex-config.md](./codex-config.md) — keys you can set with `-c key=value`
 - [codex-exec.md](./codex-exec.md) — non-interactive runs
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

@@ -182,3 +182,11 @@ in an isolated subagent.
 - [agents.md](agents.md) — subagents and the fork pattern
 - [hooks.md](hooks.md) — when to enforce instead of suggest
 - [architecture.md](architecture.md) — composition / stacking patterns
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- `deepseek-code skills` and `~/.clawspring/SKILL_TEMPLATE.md`, `~/.clawspring/skills/` inspected on disk.

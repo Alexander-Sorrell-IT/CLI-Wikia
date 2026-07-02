@@ -110,3 +110,8 @@ Inside an interactive session, type `/` to run a command. These are different fr
 - [modes.md](modes.md) — plan, autopilot, fleet, delegate in depth
 - [sessions.md](sessions.md) — resume, share, rewind, remote, memory
 - [configuration.md](configuration.md) — what `/settings` writes
+
+## Sources
+
+- GitHub Copilot CLI official docs: <https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli> and <https://github.com/github/copilot-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, configuration, cli-reference, custom-instructions, mcp, permissions) were re-verified against the official docs and the installed `copilot` CLI 1.0.68 on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

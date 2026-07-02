@@ -80,3 +80,11 @@ codex -m gpt-5.5 -c model_reasoning_effort=xhigh      # deepest reasoning
 - [codex-config.md](./codex-config.md) — `model`, `model_reasoning_effort`, providers
 - [codex-slash-commands.md](./codex-slash-commands.md) — `/model`, `/fast`
 - [models.md](./models.md) — the separate **API** model list for the `openai` CLI
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

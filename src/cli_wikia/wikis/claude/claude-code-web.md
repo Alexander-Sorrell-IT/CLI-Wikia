@@ -315,3 +315,8 @@ Claude may reply to review comment threads on GitHub as part of resolving them �
 - [cli-reference.md](./cli-reference.md) — `--remote`, `--teleport`, `--from-pr`
 - [environment-variables.md](./environment-variables.md) — `CLAUDE_CODE_REMOTE`, `CCR_FORCE_BUNDLE`, `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
 - [hooks.md](./hooks.md) — `SessionStart` for cloud setup hooks
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

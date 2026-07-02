@@ -303,3 +303,8 @@ my-extension/
 - [mcp.md](./mcp.md) — MCP server configuration and the `gemini mcp` commands
 - [configuration.md](./configuration.md) — `settings.json` and scopes
 - [cli-reference.md](./cli-reference.md) — full command and flag reference
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

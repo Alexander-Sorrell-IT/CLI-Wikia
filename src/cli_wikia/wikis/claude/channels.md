@@ -191,3 +191,8 @@ Examples include CI/Sentry webhooks injecting events into a session where Claude
 - [plugins.md](./plugins.md) — channels ship as plugins
 - [remote-control.md](./remote-control.md) — alternative for driving sessions remotely
 - [hooks.md](./hooks.md) — `Notification` hook reacts to channel messages
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

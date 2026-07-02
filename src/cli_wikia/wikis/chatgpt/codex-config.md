@@ -213,7 +213,7 @@ Toggle capabilities under `[features]` (or with `codex features` / `--enable`/`-
 |---|---|
 | `features.multi_agent` | Enable agent-collaboration / subagent tools |
 | `features.memories` | Enable the memory system |
-| `features.hooks` | Enable lifecycle hooks |
+| `features.hooks` | Enable lifecycle hooks — see [hooks.md](./hooks.md) |
 | `features.network_proxy` | Bool or table with domain/socket policies |
 | `features.unified_exec` | PTY-backed exec tool (on by default except Windows) |
 | `features.shell_snapshot` | Shell snapshotting |
@@ -273,4 +273,12 @@ The `[tui]` table controls notifications, animations, alternate-screen behavior,
 - [codex-models.md](./codex-models.md) — model ids & reasoning effort
 - [codex-mcp.md](./codex-mcp.md) — full MCP transport keys
 - [codex-agents-md.md](./codex-agents-md.md) — `AGENTS.md` discovery & merging
+- [hooks.md](./hooks.md) — lifecycle hooks (`[hooks]` tables and `hooks.json`)
 - [codex-cli-reference.md](./codex-cli-reference.md) — flags that override these keys
+
+## Sources
+
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Config basics: <https://developers.openai.com/codex/config-basic> (Accessed 2026-07-02)
+- OpenAI Developers — Advanced Configuration: <https://developers.openai.com/codex/config-advanced> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)

@@ -482,3 +482,8 @@ Debugging tips: run with `--debug` (or press **F12** for the debug console in in
 - [extensions.md](./extensions.md) — bundling MCP servers, commands, and context in an extension
 - [configuration.md](./configuration.md) — `settings.json` structure and scopes
 - [cli-reference.md](./cli-reference.md) — full command and flag reference
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

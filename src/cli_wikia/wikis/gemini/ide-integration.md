@@ -127,3 +127,8 @@ For ACP-specific issues, see the ACP Mode documentation.
 - [environment-variables.md](./environment-variables.md) — `GEMINI_CLI_IDE_PID` and related variables
 - [cli-reference.md](./cli-reference.md) — `--experimental-zed-integration` and other flags
 - [commands.md](./commands.md) — slash command reference
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

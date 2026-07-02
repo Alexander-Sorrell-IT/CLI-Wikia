@@ -94,3 +94,11 @@ Add extra search directories with the `COPILOT_CUSTOM_INSTRUCTIONS_DIRS` env var
 - [custom-agents.md](custom-agents.md)
 - [skills.md](skills.md)
 - [configuration.md](configuration.md)
+
+---
+
+## Sources
+
+- GitHub Copilot CLI 1.0.68, `copilot init --help` (generates `.github/copilot-instructions.md`); root `AGENTS.md` is the primary instruction file. Accessed 2026-07-02.
+- Bundled `@github/copilot` `changelog.json` (AGENTS.md / CLAUDE.md / copilot-instructions `@`-imports, path-scoped `*.instructions.md`). Accessed 2026-07-02.
+- https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-custom-instructions — Accessed 2026-07-02.

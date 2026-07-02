@@ -159,3 +159,8 @@ Cap the length of individual sessions to keep context windows manageable:
 - [commands.md](./commands.md) — `/resume`, `/chat`, `/settings`
 - [configuration.md](./configuration.md) — storage under `~/.gemini/tmp/<project_hash>/`
 - [cli-reference.md](./cli-reference.md) — `--resume`/`-r`, `--list-sessions`, `--delete-session`
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

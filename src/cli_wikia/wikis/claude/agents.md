@@ -327,3 +327,8 @@ A useful pattern: write a *skill* with `context: fork` + `agent: <name>` so you 
 - [skills.md](./skills.md) — `context: fork` and the inverse pattern
 - [hooks.md](./hooks.md) — `SubagentStart` and `SubagentStop` events
 - [cli-reference.md](./cli-reference.md) — `--agent`, `--agents`
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

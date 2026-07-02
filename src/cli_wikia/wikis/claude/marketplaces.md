@@ -131,3 +131,8 @@ Before installation, Claude Code shows a trust warning explaining that plugins c
 - [channels.md](./channels.md) — `claude-plugins-official` ships Telegram, Discord, iMessage channels
 - [permissions.md](./permissions.md) — managed-only marketplace settings
 - [settings.md](./settings.md) — `enabledPlugins`, `extraKnownMarketplaces`, `strictKnownMarketplaces`, `blockedMarketplaces`, `pluginTrustMessage`
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

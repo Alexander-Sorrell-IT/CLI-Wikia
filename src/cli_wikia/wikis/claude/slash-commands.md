@@ -148,3 +148,8 @@ These are *not* built-in but are common across plugin ecosystems — install via
 - [skills.md](./skills.md) — full skill spec
 - [cli-reference.md](./cli-reference.md) — flags that affect slash commands (`--disable-slash-commands`)
 - [permissions.md](./permissions.md) — `Skill()` rule syntax
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

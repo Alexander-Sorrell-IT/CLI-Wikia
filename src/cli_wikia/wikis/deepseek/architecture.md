@@ -203,3 +203,11 @@ behaviors as a strong prior, but trust what *this* tool reports.
 
 - [hooks.md](hooks.md) · [permissions.md](permissions.md) · [agents.md](agents.md)
   · [skills.md](skills.md) · [configuration.md](configuration.md)
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- Derived from `~/.clawspring/CLAWSPRING.md` and the on-disk `~/.clawspring/` layout (`hooks.json`, `settings.json`, `agents/`, `skills/`, `hooks/`, `memory/`).

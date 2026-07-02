@@ -308,3 +308,8 @@ The debate structure is the key — sequential investigation suffers from anchor
 - [hooks.md](./hooks.md) — `TeammateIdle`, `TaskCreated`, `TaskCompleted`
 - [permissions.md](./permissions.md) — pre-approve ops to reduce prompts
 - [cli-reference.md](./cli-reference.md) — `--teammate-mode`, `--tmux`
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

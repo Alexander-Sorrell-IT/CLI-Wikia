@@ -174,3 +174,8 @@ echo "export DEBUG=app:*"                              >> "$CLAUDE_ENV_FILE"
 - [skills.md](./skills.md) — substitutions like `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}`
 - [plugins.md](./plugins.md) — `${CLAUDE_PLUGIN_ROOT}` vs `${CLAUDE_PLUGIN_DATA}`
 - Full env vars reference: <https://code.claude.com/docs/en/env-vars>
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

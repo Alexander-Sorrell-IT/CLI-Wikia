@@ -138,3 +138,11 @@ Place a `settings.json` at `.github/copilot/settings.json` to share config with 
 - [environment-variables.md](environment-variables.md) — every supported env var
 - [logging.md](logging.md) and [monitoring.md](monitoring.md) — logs and OpenTelemetry
 - [permissions.md](permissions.md) — `allowedUrls`/`deniedUrls` and tool permissions in depth
+
+---
+
+## Sources
+
+- GitHub Copilot CLI 1.0.68, `copilot help config` (settings keys incl. `hooks`, `disableAllHooks`). Accessed 2026-07-02.
+- Local `~/.copilot/` layout (`settings.json`, `config.json`, `mcp-config.json`, `permissions-config.json`). Accessed 2026-07-02.
+- https://docs.github.com/copilot/how-tos/copilot-cli — Accessed 2026-07-02.

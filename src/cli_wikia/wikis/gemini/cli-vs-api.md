@@ -25,3 +25,8 @@ directly from code.
 > long-term toward [Antigravity](../antigravity/README.md) as the agent tool —
 > but the underlying Gemini **API** remains the programmatic interface.
 > Verify current API details in the official Google AI docs.
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

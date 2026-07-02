@@ -29,7 +29,7 @@ Hooks are scripts (or HTTP calls or MCP tool calls or LLM judges) that fire auto
 | `PreToolUse` | After Claude builds tool params, before execute | **Yes** | tool name (`Bash`, `Edit`, `mcp__server__tool`, …) |
 | `PermissionRequest` | Permission dialog about to show | **Yes** | tool name |
 | `PermissionDenied` | Auto-mode classifier denied the call | No (`retry: true` lets model retry) | tool name |
-| `PostToolUse` | Tool succeeded | **Yes** (re-prompts Claude) | tool name |
+| `PostToolUse` | Tool succeeded | No via exit 2; `decision:block` re-prompts Claude | tool name |
 | `PostToolUseFailure` | Tool failed | No | tool name |
 | `PostToolBatch` | Whole parallel tool batch resolved, before next model call | **Yes** | none |
 
@@ -40,7 +40,7 @@ Hooks are scripts (or HTTP calls or MCP tool calls or LLM judges) that fire auto
 | `PreCompact` | Before context compaction | **Yes** | `manual`, `auto` |
 | `PostCompact` | After context compaction | No | `manual`, `auto` |
 | `Stop` | Claude finishes responding | **Yes** (forces continuation) | none |
-| `StopFailure` | Turn ends due to API error | No (observational) | `rate_limit`, `authentication_failed`, `billing_error`, `invalid_request`, `server_error`, `max_output_tokens`, `unknown` |
+| `StopFailure` | Turn ends due to API error | No (observational) | `rate_limit`, `overloaded`, `authentication_failed`, `oauth_org_not_allowed`, `billing_error`, `invalid_request`, `model_not_found`, `server_error`, `max_output_tokens`, `unknown` |
 
 ### Subagents
 
@@ -76,8 +76,8 @@ Hooks are scripts (or HTTP calls or MCP tool calls or LLM judges) that fire auto
 | Event | Fires when | Can block? | Matchers |
 |---|---|---|---|
 | `ConfigChange` | A config file changes mid-session | **Yes** (except `policy_settings`) | `user_settings`, `project_settings`, `local_settings`, `policy_settings`, `skills` |
-| `Notification` | Claude Code emits a notification | No | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog` |
-| `MessageDisplay` | While assistant message text is shown on screen (observability-only) | No (original text always displayed) | none — always fires |
+| `Notification` | Claude Code emits a notification | No | `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_complete`, `elicitation_response` |
+| `MessageDisplay` | While assistant message text is shown on screen | No | none — always fires. Can rewrite what's shown via `hookSpecificOutput.displayContent` |
 
 ### MCP elicitation (when an MCP server asks the user for input)
 
@@ -100,11 +100,7 @@ Hooks are scripts (or HTTP calls or MCP tool calls or LLM judges) that fire auto
 
 ### Where the LLM judges (`prompt` / `agent`) can run
 
-They are **NOT** available on every event. Both handler types are supported on exactly these **7 events**:
-
-`UserPromptSubmit`, `UserPromptExpansion`, `PreToolUse`, `PostToolUse`, `PostToolBatch`, `Stop`, `SubagentStop`.
-
-> Note: `PermissionRequest` does **not** support `prompt`/`agent` — only `command`, `http`, `mcp_tool`. (Earlier docs that said "only PreToolUse/PostToolUse/PermissionRequest" were wrong on both counts.)
+The official hooks reference states all **five handler types are available for all events** — there is no documented per-event restriction on `prompt`/`agent` as of 2026-07-02. The judges are most useful on the events where a semantic verdict maps to a decision: `UserPromptSubmit`, `UserPromptExpansion`, `PreToolUse`, `PostToolUse`, `PostToolBatch`, `Stop`, `SubagentStop`. On non-blocking events a judge's verdict can still emit `additionalContext` but cannot hard-block.
 
 These judges genuinely make **semantic** decisions — e.g. a `prompt` hook on `PreToolUse(Bash)` can read the command and reason about whether it violates a content/style rule, not just regex it. That's the use case for reviewing generated text before it's typed/submitted.
 
@@ -127,6 +123,8 @@ or, to block:
 
 `reason` is required when `"ok": false`. `agent` hooks use the identical format and semantics.
 
+> The `{"ok": …}` judge output shape is **undocumented as of 2026-07-02** — the public hooks reference documents `prompt`/`agent` handler config but not their return schema. Treat it as observed behavior.
+
 ---
 
 ## Common input fields (all events)
@@ -134,9 +132,11 @@ or, to block:
 ```json
 {
   "session_id": "abc123",
+  "prompt_id": "uuid",
   "transcript_path": "/path/to/transcript.jsonl",
   "cwd": "/current/dir",
   "permission_mode": "default|plan|acceptEdits|auto|dontAsk|bypassPermissions",
+  "effort": { "level": "low|medium|high|xhigh|max" },
   "hook_event_name": "PreToolUse",
   "agent_id":   "...",   // subagents only
   "agent_type": "..."    // with --agent or in subagents
@@ -158,8 +158,9 @@ Tool events also have:
   "stopReason": "shown when continue=false",
   "suppressOutput": false,
   "systemMessage": "user-facing warning",
+  "terminalSequence": "OSC/BEL terminal escape sequence",
   "additionalContext": "string — added to Claude's context",
-  "sessionTitle": "for UserPromptSubmit",
+  "sessionTitle": "for UserPromptSubmit/SessionStart",
   "decision": "block|null",
   "reason": "shown to Claude when decision=block",
   "hookSpecificOutput": {
@@ -167,11 +168,16 @@ Tool events also have:
     "permissionDecision": "allow|deny|ask|defer",
     "permissionDecisionReason": "...",
     "updatedInput":           { /* replaces tool params (include unchanged fields too) */ },
+    "updatedToolOutput":      "PostToolUse — rewrite tool result (string|object)",
     "updatedMCPToolOutput":   "MCP tools only",
+    "displayContent":         "MessageDisplay only — rewrite shown text",
+    "watchPaths":             [ "/path/to/watch" ],           // SessionStart — extra files to watch
+    "reloadSkills":           true,                           // SessionStart — re-scan skills
+    "initialUserMessage":     "First-turn message",           // SessionStart
     "retry":                  true,
     "action":                 "accept|decline|cancel",   // Elicitation only
     "content":                { /* form values */ },     // Elicitation only
-    "behavior":               "allow|deny",              // PermissionRequest only
+    "behavior":               "allow|deny",              // PermissionRequest — official form nests this under a "decision" object with optional "dontAskAgain": bool
     "updatedPermissions":     [ /* see below */ ],
     "message":                "...",
     "interrupt":              false,
@@ -215,8 +221,9 @@ Tool events also have:
   "if": "Bash(rm *)",                  // permission-rule filter (tool events)
   "timeout": 600,                       // seconds
   "statusMessage": "Checking…",
-  "once": true,                         // fire only once per session
+  "once": true,                         // fire only once per session (skill frontmatter)
   "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/check.sh",
+  "args": [],                           // extra argv passed to the command
   "async": false,
   "asyncRewake": false,                 // background; wake Claude on exit 2
   "shell": "bash"                       // or "powershell"
@@ -258,7 +265,7 @@ Defaults: command 600s, http 30s, prompt 30s, agent 60s. Hook output injected in
 }
 ```
 
-The judge model must emit `{"ok": true}` to allow or `{"ok": false, "reason": "…"}` to block — see "Output schema for prompt / agent judges" above. Supported on 7 events only (UserPromptSubmit, UserPromptExpansion, PreToolUse, PostToolUse, PostToolBatch, Stop, SubagentStop).
+The judge model must emit `{"ok": true}` to allow or `{"ok": false, "reason": "…"}` to block — see "Output schema for prompt / agent judges" above. Documented as available on all events; practically useful on the blocking events (UserPromptSubmit, UserPromptExpansion, PreToolUse, PostToolUse, PostToolBatch, Stop, SubagentStop).
 
 ### Agent hook fields (experimental)
 
@@ -270,7 +277,7 @@ The judge model must emit `{"ok": true}` to allow or `{"ok": false, "reason": "�
 }
 ```
 
-Same `{"ok": …, "reason": "…"}` output and same 7-event support as `prompt`.
+Same `{"ok": …, "reason": "…"}` output and same event support as `prompt`.
 
 ---
 
@@ -378,3 +385,13 @@ exit 0
 - [permission-modes.md](./permission-modes.md) — auto-mode classifier interaction
 - [skills.md](./skills.md) and [agents.md](./agents.md) — `hooks:` frontmatter
 - [stacking.md](./stacking.md) — composing hooks with skills and agents
+
+---
+
+## Sources
+
+- Hooks reference — <https://code.claude.com/docs/en/hooks> (Accessed 2026-07-02). All 30 event names, exit-code semantics, JSON output schema, matcher rules, and input fields verified against this page.
+- Hooks guide — <https://code.claude.com/docs/en/hooks-guide> (Accessed 2026-07-02).
+- Corroborated against `claude --version` 2.1.198 and `claude --help` on 2026-07-02.
+- The public hooks reference states all **five handler types are available for all events**; the earlier "`prompt`/`agent` only on 7 events" claim was not supported by the docs and has been corrected. The `{"ok": …, "reason": …}` judge *return* schema remains undocumented as of 2026-07-02 (config for `prompt`/`agent` is documented; their output shape is not) — treat it as observed behavior.
+- Output-schema fields `watchPaths`, `reloadSkills`, `initialUserMessage` (SessionStart) and the command-hook `args` field verified against the hooks reference on 2026-07-02.

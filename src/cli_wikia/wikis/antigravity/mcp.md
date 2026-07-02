@@ -96,3 +96,10 @@ message.
 - [plugins.md](./plugins.md) — plugins are the usual delivery vehicle for MCP servers
 - [agentic-model.md](./agentic-model.md) — how the agent calls tools during execution
 - [permissions.md](./permissions.md) — gating what MCP-driven actions may do
+
+## Sources
+
+- Antigravity official docs: `https://antigravity.google/docs` (hooks: `/docs/hooks`, CLI features: `/docs/cli-features`, usage: `/docs/cli-using`) (Accessed 2026-07-02)
+- Google Developers Blog, "An important update: Transitioning Gemini CLI to Antigravity CLI": `https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/` (Accessed 2026-07-02)
+- GitHub — google-antigravity/antigravity-cli: `https://github.com/google-antigravity/antigravity-cli` (Accessed 2026-07-02)
+- Verified against the installed CLI on 2026-07-02: `agy` v1.0.13 (`agy --help`; binary strings confirm `.agents/` workspace root incl. `.agents/skills` and `.agents/agents`, `AGENTS.md` and `GEMINI.md` recognition, `~/.gemini/antigravity-cli/settings.json`, and `hooks.json` discovery) and on-disk state under `~/.gemini/antigravity-cli/` and `~/.gemini/config/`.

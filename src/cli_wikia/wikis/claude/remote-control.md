@@ -167,3 +167,8 @@ If notifications don't arrive:
 - [channels.md](./channels.md) — push events instead of driving the session
 - [cli-reference.md](./cli-reference.md) — `claude remote-control`, `--rc`, `--remote-control-session-name-prefix`
 - [permissions.md](./permissions.md) — pre-approving common ops
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

@@ -6,7 +6,10 @@ harness, outside the model, so the model cannot ignore them. The hooks subsystem
 adapted directly from Claude Code's: the shipped `hooks.json` even labels itself
 "Based on Claude Code hooks architecture — adapted for DeepSeek Clawspring".
 
-There are **28 event types**. The shipped install registers a handler for every one.
+There are **28 event types** (re-verified 2026-07-02 against the installed tool:
+`deepseek-code hooks` and `~/.clawspring/hooks.json` list exactly these 28 events,
+as top-level keys of `hooks.json` — *not* nested under a `"hooks"` key as in
+Claude Code's `settings.json`). The shipped install registers a handler for every one.
 
 ```bash
 deepseek-code hooks    # list configured hooks with a handler count per event
@@ -230,3 +233,11 @@ discovery entirely for a clean session. This is the CI/deterministic path.
 - [permissions.md](permissions.md) — how `PreToolUse` hooks reinforce permission rules
 - [agents.md](agents.md#the-advisor) — the advisor + `Stop` hook quality gate
 - [architecture.md](architecture.md) — the full hook-event flow through a session
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- `deepseek-code hooks` lists 28 events, one handler each; `~/.clawspring/hooks.json` inspected — the 28 event names are **top-level keys** (not nested under a `"hooks"` wrapper); hook scripts live in `~/.clawspring/hooks/`.

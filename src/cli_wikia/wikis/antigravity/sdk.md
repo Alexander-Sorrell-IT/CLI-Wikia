@@ -118,3 +118,10 @@ async with Agent(config) as agent:
 
 - [cli-vs-api.md](./cli-vs-api.md) — `agy`/SDK vs the underlying model APIs
 - [agentic-model.md](./agentic-model.md) — the agent loop the SDK drives
+
+## Sources
+
+- Antigravity official docs: `https://antigravity.google/docs` (hooks: `/docs/hooks`, CLI features: `/docs/cli-features`, usage: `/docs/cli-using`) (Accessed 2026-07-02)
+- Google Developers Blog, "An important update: Transitioning Gemini CLI to Antigravity CLI": `https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/` (Accessed 2026-07-02)
+- GitHub — google-antigravity/antigravity-cli: `https://github.com/google-antigravity/antigravity-cli` (Accessed 2026-07-02)
+- Verified against the installed CLI on 2026-07-02: `agy` v1.0.13 (`agy --help`; binary strings confirm `.agents/` workspace root incl. `.agents/skills` and `.agents/agents`, `AGENTS.md` and `GEMINI.md` recognition, `~/.gemini/antigravity-cli/settings.json`, and `hooks.json` discovery) and on-disk state under `~/.gemini/antigravity-cli/` and `~/.gemini/config/`.

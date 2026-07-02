@@ -25,3 +25,8 @@ API.
 > Rule of thumb: **API for programs, CLI for people.** See also
 > [headless-sdk.md](./headless-sdk.md) for using Claude Code itself
 > programmatically — a middle ground between the two.
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

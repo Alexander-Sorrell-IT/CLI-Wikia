@@ -53,3 +53,11 @@ openai -t azure \
 | `-p/--proxy <proxy...>` | Route through a proxy |
 
 See [cli-reference.md](./cli-reference.md) for all global flags.
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

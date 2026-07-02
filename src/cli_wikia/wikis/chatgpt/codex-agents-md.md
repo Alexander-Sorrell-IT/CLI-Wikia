@@ -88,3 +88,11 @@ project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
 - [codex-config.md](./codex-config.md) — `project_doc_max_bytes`, `project_doc_fallback_filenames`
 - [codex-slash-commands.md](./codex-slash-commands.md) — `/init` scaffolds an `AGENTS.md`
 - [codex-overview.md](./codex-overview.md) — where AGENTS.md sits in the model
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

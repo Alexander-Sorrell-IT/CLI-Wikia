@@ -8,21 +8,23 @@ pipelines, and automation.
 
 Headless mode runs when either condition is true:
 
-- You pass a query with the `-p` (or `--prompt`) flag, or
+- You pass a query as a **positional prompt** (or via the `-p`/`--prompt` flag), or
 - The CLI is run in a **non-TTY** environment (for example, piped input or
   output).
 
 ```bash
-# Prompt flag
-gemini -p "summarize the README"
+# Positional prompt (canonical form as of v0.22)
+gemini "summarize the README"
 
 # Piped via stdin (non-TTY)
-cat error.log | gemini -p "what is causing these errors?"
+cat error.log | gemini "what is causing these errors?"
 ```
 
-> A bare positional prompt (`gemini "..."`) may also be accepted depending on
-> your version — verify in official docs. The reliably documented entry point is
-> `-p`/`--prompt`.
+> As of v0.22.4, the positional prompt is the canonical one-shot entry point.
+> `-p`/`--prompt` still works but is **deprecated** (help text: "Use the
+> positional prompt instead. This flag will be removed in a future version.").
+> When both are given, `-p` is appended to stdin input. Use
+> `-i`/`--prompt-interactive` to run a prompt and then stay in interactive mode.
 
 ## Output formats
 
@@ -107,12 +109,12 @@ IDE and developer-tool integrations. It speaks **JSON-RPC 2.0 over stdio**
 between the Gemini CLI agent (server) and a client (editor/IDE). Start it with:
 
 ```bash
-gemini --acp
-gemini --acp --debug      # add general debugging logs
+gemini --experimental-acp
+gemini --experimental-acp --debug      # add general debugging logs
 ```
 
-> Some versions expose this as `--experimental-acp`; verify the flag name for
-> your build in official docs.
+> As of v0.22.4 the flag is `--experimental-acp` (confirmed via `gemini --help`).
+> Older builds may have exposed a bare `--acp`; verify for your build.
 
 ACP standardizes how AI coding agents talk to editors so an agent can be
 implemented once and work with any ACP-compliant client. Gemini CLI is listed in
@@ -206,3 +208,11 @@ You can use ${write_file_ToolName} to save logs.
 - [configuration.md](./configuration.md) — `GEMINI_SYSTEM_MD`, `.gemini/.env`
 - [mcp.md](./mcp.md) — exposing client tools via MCP under ACP
 - [context-files.md](./context-files.md) — GEMINI.md vs. system.md
+
+## Sources
+
+- `gemini --help` on the installed binary, v0.22.4 (Accessed 2026-07-02) — confirms
+  positional prompt as canonical, `-p`/`--prompt` deprecated, `--output-format`
+  choices `text`/`json`/`stream-json`, `--experimental-acp`, `-y`/`--yolo`,
+  `--approval-mode` (`default`/`auto_edit`/`yolo`).
+- Headless / scripting docs — https://geminicli.com/docs/cli/ (Accessed 2026-07-02)

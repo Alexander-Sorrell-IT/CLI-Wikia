@@ -11,6 +11,10 @@ are closely modeled on Claude Code, while the model behind it is DeepSeek V4
 - **Version referenced:** 2.0.0 (Clawspring `v3.05.5`)
 - **Backend:** DeepSeek V4 — Pro 1.6T MoE / Flash 284B MoE, 1M context
 - **Runtime:** Clawspring Agent Runtime
+- **Instructions file:** `CLAWSPRING.md` — the always-loaded instructions file this
+  tool reads (global `~/.clawspring/CLAWSPRING.md`, project `.clawspring/CLAWSPRING.md`).
+  It plays the role CLAUDE.md plays for Claude Code, but the filename here is
+  CLAWSPRING.md.
 
 > **Sourcing & accuracy.** This wiki was assembled by interrogating the installed,
 > authenticated tool directly (`deepseek-code -p`, `--help`, and its read-only
@@ -135,3 +139,11 @@ with `deepseek-code auth status`.
 | Get a second opinion mid-task | [agents.md](agents.md#the-advisor) |
 | Package and share extensions | [plugins.md](plugins.md) |
 | Understand the whole system | [architecture.md](architecture.md) |
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- Assembled by interrogating the installed tool (`--help`, `--version`, and the read-only `config`/`agents`/`skills`/`hooks` subcommands) plus its on-disk config under `~/.deepseek-code/` and `~/.clawspring/`.

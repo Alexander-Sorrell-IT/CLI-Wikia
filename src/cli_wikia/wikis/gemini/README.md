@@ -159,3 +159,8 @@ and project files so admins can enforce policy — see [enterprise.md](./enterpr
 Full live documentation: <https://google-gemini.github.io/gemini-cli/>
 · Repository: <https://github.com/google-gemini/gemini-cli>
 · Settings schema: `schemas/settings.schema.json`
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

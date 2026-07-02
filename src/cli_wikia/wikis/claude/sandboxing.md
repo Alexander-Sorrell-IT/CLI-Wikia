@@ -257,3 +257,8 @@ Source: [github.com/anthropic-experimental/sandbox-runtime](https://github.com/a
 - [permissions.md](./permissions.md) — `Read`/`Edit` rules merge into sandbox filesystem
 - [permission-modes.md](./permission-modes.md) — `auto` mode and the classifier
 - [settings.md](./settings.md) — full `sandbox.*` key list
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

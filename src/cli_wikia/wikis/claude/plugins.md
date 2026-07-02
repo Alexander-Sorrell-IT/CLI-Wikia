@@ -333,3 +333,8 @@ claude plugin marketplace remove <name>
 - [skills.md](./skills.md), [agents.md](./agents.md), [hooks.md](./hooks.md), [mcp.md](./mcp.md), [monitors.md](./monitors.md) — components in detail
 - [stacking.md](./stacking.md) — how plugins compose all of these
 - [settings.md](./settings.md) — `enabledPlugins`, `extraKnownMarketplaces`, `pluginTrustMessage`, `strictKnownMarketplaces`, `blockedMarketplaces`
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

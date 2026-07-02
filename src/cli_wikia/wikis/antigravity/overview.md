@@ -78,3 +78,10 @@ See [agentic-model.md](./agentic-model.md) for the full picture.
 - Want to understand how the agent works? → [agentic-model.md](./agentic-model.md)
 - Configuring it? → [configuration.md](./configuration.md)
 - Locking it down? → [permissions.md](./permissions.md) + [sandbox.md](./sandbox.md)
+
+## Sources
+
+- Antigravity official docs: `https://antigravity.google/docs` (hooks: `/docs/hooks`, CLI features: `/docs/cli-features`, usage: `/docs/cli-using`) (Accessed 2026-07-02)
+- Google Developers Blog, "An important update: Transitioning Gemini CLI to Antigravity CLI": `https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/` (Accessed 2026-07-02)
+- GitHub — google-antigravity/antigravity-cli: `https://github.com/google-antigravity/antigravity-cli` (Accessed 2026-07-02)
+- Verified against the installed CLI on 2026-07-02: `agy` v1.0.13 (`agy --help`; binary strings confirm `.agents/` workspace root incl. `.agents/skills` and `.agents/agents`, `AGENTS.md` and `GEMINI.md` recognition, `~/.gemini/antigravity-cli/settings.json`, and `hooks.json` discovery) and on-disk state under `~/.gemini/antigravity-cli/` and `~/.gemini/config/`.

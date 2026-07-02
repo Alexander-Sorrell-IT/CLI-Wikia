@@ -446,3 +446,26 @@ Gemini CLI extension.
 - [permissions.md](./permissions.md) — the Policy Engine alongside hook blocks.
 - [subagents.md](./subagents.md) — subagents and per-agent policies.
 - [mcp.md](./mcp.md) — MCP tool naming used in `BeforeTool`/`AfterTool` matchers.
+
+## Sources
+
+Verified against official docs; the full 11-event set below matches the
+reference exactly.
+
+- Hooks reference — https://geminicli.com/docs/hooks/reference/ (Accessed 2026-07-02)
+- Hooks overview — https://geminicli.com/docs/hooks/ (Accessed 2026-07-02)
+- Writing hooks — https://geminicli.com/docs/hooks/writing-hooks/ (Accessed 2026-07-02)
+- GitHub source — https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/reference.md (Accessed 2026-07-02)
+
+Verified event names (all 11 confirmed present in official reference):
+`SessionStart`, `SessionEnd`, `BeforeAgent`, `AfterAgent`, `BeforeModel`,
+`AfterModel`, `BeforeToolSelection`, `BeforeTool`, `AfterTool`, `PreCompress`,
+`Notification`. Built-in tool names used in `BeforeTool`/`AfterTool` matchers
+(`write_file`, `replace`, `read_file`, `read_many_files`, `run_shell_command`)
+are confirmed current. Note: content search is now `grep_search` with
+`search_file_content` as a legacy alias.
+
+Only `GEMINI_PROJECT_DIR` is confirmed in the official docs among the hook
+environment variables; the others listed above (`GEMINI_PLANS_DIR`,
+`GEMINI_SESSION_ID`, `GEMINI_CWD`, `CLAUDE_PROJECT_DIR`) are not documented as of
+2026-07-02 — treat as undocumented.

@@ -336,3 +336,8 @@ To enable extended thinking in a skill, include the word **`ultrathink`** anywhe
 - [hooks.md](./hooks.md) — deterministic enforcement when skills aren't enough
 - [plugins.md](./plugins.md) — packaging skills for distribution
 - [stacking.md](./stacking.md) — composing skills + agents + hooks
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

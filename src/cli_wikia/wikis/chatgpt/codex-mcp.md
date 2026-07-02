@@ -112,3 +112,11 @@ MCP tool calls participate in Codex's [approval policy](./codex-approvals-sandbo
 - [codex-config.md](./codex-config.md) — where `[mcp_servers]` lives in the config layering
 - [codex-approvals-sandbox.md](./codex-approvals-sandbox.md) — how MCP calls are gated
 - [codex-slash-commands.md](./codex-slash-commands.md) — `/mcp`
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

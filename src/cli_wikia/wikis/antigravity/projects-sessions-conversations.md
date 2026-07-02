@@ -109,3 +109,10 @@ asynchronously and reports back to the parent — see
 - [configuration.md](./configuration.md) — exact on-disk layout and config precedence
 - [cli-reference.md](./cli-reference.md) — every resume/fork/rewind command and flag
 - [agentic-model.md](./agentic-model.md) — subagents and background/scheduled tasks
+
+## Sources
+
+- Antigravity official docs: `https://antigravity.google/docs` (hooks: `/docs/hooks`, CLI features: `/docs/cli-features`, usage: `/docs/cli-using`) (Accessed 2026-07-02)
+- Google Developers Blog, "An important update: Transitioning Gemini CLI to Antigravity CLI": `https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/` (Accessed 2026-07-02)
+- GitHub — google-antigravity/antigravity-cli: `https://github.com/google-antigravity/antigravity-cli` (Accessed 2026-07-02)
+- Verified against the installed CLI on 2026-07-02: `agy` v1.0.13 (`agy --help`; binary strings confirm `.agents/` workspace root incl. `.agents/skills` and `.agents/agents`, `AGENTS.md` and `GEMINI.md` recognition, `~/.gemini/antigravity-cli/settings.json`, and `hooks.json` discovery) and on-disk state under `~/.gemini/antigravity-cli/` and `~/.gemini/config/`.

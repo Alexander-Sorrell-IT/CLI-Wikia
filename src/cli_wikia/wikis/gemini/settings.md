@@ -236,3 +236,9 @@ Top-level arrays of extra policy files/directories for the
 - [environment-variables.md](./environment-variables.md) — env-var equivalents
 - [commands.md](./commands.md) — `/settings` editor and reload commands
 - [permissions.md](./permissions.md) — policy engine, approval modes, folder trust
+
+## Sources
+
+- Settings schema — https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json (Accessed 2026-07-02)
+- Configuration docs — https://geminicli.com/docs/ (Accessed 2026-07-02)
+- Hook settings precedence and locations verified against https://geminicli.com/docs/hooks/ (Accessed 2026-07-02): `.gemini/settings.json` (project) > `~/.gemini/settings.json` (user) > `/etc/gemini-cli/settings.json` (system) > extensions.

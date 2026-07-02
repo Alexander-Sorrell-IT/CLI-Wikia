@@ -126,52 +126,54 @@ claude -p --permission-prompt-tool mcp_auth_tool "do work"
 
 When `claude -p` isn't enough — when you're embedding the agentic loop into your own application.
 
-Two packages:
-- **Python**: `pip install anthropic` (general SDK) — see [agent-sdk overview](https://code.claude.com/docs/en/agent-sdk/overview)
-- **TypeScript**: `@anthropic-ai/sdk`
+Two packages (this is the **Agent SDK**, distinct from the raw Anthropic *Client* SDK — see note below):
+- **Python**: `pip install claude-agent-sdk` (requires Python 3.10+) — see [agent-sdk overview](https://code.claude.com/docs/en/agent-sdk/overview)
+- **TypeScript**: `npm install @anthropic-ai/claude-agent-sdk` (bundles a native Claude Code binary as an optional dependency)
+
+> **Agent SDK ≠ Client SDK.** The Agent SDK (`claude_agent_sdk` / `@anthropic-ai/claude-agent-sdk`) gives you Claude's full agent loop with built-in tool execution. The Anthropic **Client** SDK (`anthropic` / `@anthropic-ai/sdk`) is just the raw Messages API — you implement the tool loop yourself. Don't confuse them.
 
 What the Agent SDK adds over `claude -p`:
 
 - **Validated structured outputs** (JSON Schema enforcement at the SDK level)
 - **Tool approval callbacks** — write your own approve/deny logic
-- **Programmatic subagent spawning**
-- **Session persistence** with custom storage backends
-- **Real-time streaming with callbacks**
+- **Programmatic subagent spawning** (`agents` option)
+- **Session persistence / resume** (capture `session_id` from the `system/init` message, pass `resume=`)
+- **Real-time streaming** (async iteration over messages)
 - **Cost tracking** — token usage breakdowns
-- **Programmatic hook registration**
+- **Programmatic hook registration** (`hooks` option with callback functions)
+- **Filesystem config loading** — reads `.claude/` and `~/.claude/` unless restricted via `setting_sources`/`settingSources`
 
 ### Minimal Python example
 
 ```python
-from anthropic import Anthropic
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-client = Anthropic(api_key="…")
+async def main():
+    async for message in query(
+        prompt="Find and fix the bug in auth.py",
+        options=ClaudeAgentOptions(allowed_tools=["Read", "Edit", "Bash"]),
+    ):
+        if hasattr(message, "result"):
+            print(message.result)
 
-response = client.messages.create(
-    model="claude-opus-4-7",
-    max_tokens=1024,
-    tools=[...],
-    messages=[{"role": "user", "content": "Fix the bug"}],
-)
-print(response.content[0].text)
+asyncio.run(main())
 ```
 
 ### Minimal TypeScript example
 
 ```typescript
-import Anthropic from '@anthropic-ai/sdk';
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-const response = await client.messages.create({
-  model: 'claude-opus-4-7',
-  max_tokens: 1024,
-  tools: [...],
-  messages: [{ role: 'user', content: 'Fix the bug' }],
-});
-
-console.log(response.content[0].type === 'text' ? response.content[0].text : '');
+for await (const message of query({
+  prompt: "Find and fix the bug in auth.ts",
+  options: { allowedTools: ["Read", "Edit", "Bash"] }
+})) {
+  if ("result" in message) console.log(message.result);
+}
 ```
+
+Auth: set `ANTHROPIC_API_KEY` (or a third-party provider via `CLAUDE_CODE_USE_BEDROCK`/`CLAUDE_CODE_USE_VERTEX`/`CLAUDE_CODE_USE_FOUNDRY`). Anthropic does not permit claude.ai-login auth for third-party products built on the Agent SDK — use API keys.
 
 ### Always include prompt caching
 
@@ -204,3 +206,11 @@ The `/claude-api` bundled skill handles migrations between Claude API versions (
 - [hooks.md](./hooks.md) — hooks work in headless mode too
 - [models.md](./models.md) — `--fallback-model`, `availableModels`
 - Agent SDK documentation: <https://code.claude.com/docs/en/agent-sdk/overview>
+
+---
+
+## Sources
+
+- Run Claude Code programmatically (headless / `claude -p`) — <https://code.claude.com/docs/en/headless> (Accessed 2026-07-02). `-p`, `--output-format` (text/json/stream-json), `--json-schema`, `--bare`, `--continue`/`--resume`, `structured_output`/`result`/`session_id`/`total_cost_usd` fields, and `system/init`/`system/api_retry` stream events verified here.
+- Agent SDK overview — <https://code.claude.com/docs/en/agent-sdk/overview> (Accessed 2026-07-02). Corrected package names to `claude-agent-sdk` (Python) and `@anthropic-ai/claude-agent-sdk` (TypeScript); the earlier `anthropic`/`@anthropic-ai/sdk` reference was the Client SDK, not the Agent SDK.
+- Corroborated against `claude --help` on v2.1.198, 2026-07-02.

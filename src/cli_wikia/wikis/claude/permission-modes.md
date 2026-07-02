@@ -217,3 +217,8 @@ To force a prompt for one of these, add an `ask` or `deny` rule for it.
 - [hooks.md](./hooks.md) — PreToolUse hooks add custom permission logic
 - [sandboxing.md](./sandboxing.md) — OS-level isolation (complements permissions)
 - [models.md](./models.md) — auto-mode model gating
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

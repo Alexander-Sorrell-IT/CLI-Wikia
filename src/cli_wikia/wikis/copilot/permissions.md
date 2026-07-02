@@ -110,3 +110,10 @@ In an interactive session, when the agent wants to do something not pre-approved
 - [modes.md](modes.md) — autopilot pairs with broad permissions
 - [configuration.md](configuration.md) — `allowedUrls`/`deniedUrls`/`trustedFolders`
 - [custom-agents.md](custom-agents.md) — per-agent tool restrictions
+
+---
+
+## Sources
+
+- `copilot help permissions` and `copilot --help` (GitHub Copilot CLI 1.0.68) — tool/path/URL permission flags, `--allow-all`/`--yolo`, deny-wins semantics. Accessed 2026-07-02.
+- [GitHub Copilot CLI docs](https://docs.github.com/copilot/how-tos/copilot-cli) — Accessed 2026-07-02.

@@ -105,3 +105,11 @@ Enabled plugins are tracked in the `enabledPlugins` object of the relevant
 - [agents.md](agents.md) — subagent definitions and the plugin precedence tier
 - [hooks.md](hooks.md) — bundled `hooks.json`
 - [configuration.md](configuration.md) — `enabledPlugins` and settings scopes
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- `~/.clawspring/PLUGIN_TEMPLATE.md`, `~/.clawspring/plugins/`, and the `enabledPlugins` key in `~/.clawspring/settings.json` inspected on disk.

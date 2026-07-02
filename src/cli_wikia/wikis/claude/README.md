@@ -161,3 +161,8 @@ So "let's build X" → brainstorming first, then implementation skills. "Fix thi
 ## Reference URL
 
 Full live documentation: <https://code.claude.com/docs/llms.txt>
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

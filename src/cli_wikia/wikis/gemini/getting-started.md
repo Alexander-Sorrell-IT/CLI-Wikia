@@ -143,3 +143,8 @@ Configuration and history remain in `~/.gemini` (and any project `.gemini` direc
 - [commands.md](./commands.md) — slash commands including `/stats`
 - [environment-variables.md](./environment-variables.md) — `GEMINI_API_KEY`, `GOOGLE_CLOUD_PROJECT`, and more
 - [enterprise.md](./enterprise.md) — org deployment, telemetry, and token caching
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

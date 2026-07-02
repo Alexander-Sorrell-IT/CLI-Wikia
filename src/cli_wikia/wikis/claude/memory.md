@@ -32,8 +32,10 @@ See @README.md for overview, @docs/architecture.md for design.
 ```
 
 - Relative paths resolve relative to the importing file.
-- Max 5 import hops.
+- Max import depth is **4 hops**.
 - `@~/path` references your home dir.
+- Wrap a path in backticks (`` `@README` ``) to mention it without importing; imports inside code spans/fences are skipped.
+- The first time a project uses external imports, Claude shows an approval dialog; declining disables them permanently for that project.
 
 ### Path-scoped rules
 
@@ -86,7 +88,7 @@ Test:  `npm test`
 
 ## Auto-Memory — Claude writes this
 
-Claude automatically saves discovered facts (build commands, conventions, your preferences) to `~/.claude/projects/<project>/memory/`. This is per-project and **machine-local** — not synced.
+Claude automatically saves discovered facts (build commands, conventions, your preferences) to `~/.claude/projects/<project>/memory/`. This is per-project and **machine-local** — not synced. Requires Claude Code **v2.1.59+**. On by default; disable with `autoMemoryEnabled: false` or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. `<project>` is derived from the git repo root, so all worktrees/subdirs of one repo share a memory directory.
 
 ### Layout
 
@@ -120,7 +122,7 @@ The auto-memory system organizes notes into four types:
 
 ### How it works
 
-1. Claude reads the first ~200 lines of `MEMORY.md` at session start.
+1. Claude reads the first **200 lines or 25KB (whichever comes first)** of `MEMORY.md` at session start. Content beyond that is not loaded at start.
 2. During the session, Claude reads/writes topic files on demand.
 3. `MEMORY.md` stays a concise index; details live in topic files.
 4. `/memory` shows everything — both CLAUDE.md and auto-memory — and lets you browse/edit/delete.
@@ -191,3 +193,12 @@ This is separate from auto-memory. The `/remember` skill writes here so the next
 - [skills.md](./skills.md) — `disable-model-invocation` for skills that should only fire on `/`
 - [settings.md](./settings.md) — `autoMemoryEnabled`, `autoMemoryDirectory`
 - [permissions.md](./permissions.md) — `additionalDirectories`
+
+---
+
+## Sources
+
+- Memory (CLAUDE.md + auto memory) — <https://code.claude.com/docs/en/memory> (Accessed 2026-07-02). Locations, load order, `@` imports (max 4 hops), `.claude/rules/`, and the 200-line/25KB MEMORY.md threshold verified against this page.
+- CLAUDE.md is the file Claude Code reads; `AGENTS.md` is read only via a `@AGENTS.md` import or symlink (official memory page, 2026-07-02).
+- Auto memory requires Claude Code v2.1.59+; disable via `autoMemoryEnabled: false` or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`.
+- The `/remember` skill and `.remember/` layout are plugin-provided, not core Claude Code — undocumented on official docs as of 2026-07-02.

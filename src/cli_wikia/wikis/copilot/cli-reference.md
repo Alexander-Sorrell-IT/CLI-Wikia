@@ -23,9 +23,9 @@ With no command, `copilot` starts an interactive session. With `-p`/`--prompt` i
 | `copilot update [prerelease]` | Download the latest version (stable by default) |
 | `copilot version` | Show installed version and check for updates |
 | `copilot completion <bash\|zsh\|fish>` | Print a shell completion script to stdout |
-| `copilot help [topic]` | Built-in help. Topics: `billing`, `commands`, `config`, `environment`, `logging`, `monitoring`, `permissions`, `providers` |
+| `copilot help [topic]` | Built-in help. Topics: `billing`, `commands`, `config`, `environment`, `limits`, `logging`, `monitoring`, `permissions`, `providers` |
 
-The eight `help` topics are genuinely detailed and are the most authoritative offline reference — `copilot help permissions`, `copilot help providers`, etc.
+The nine `help` topics are genuinely detailed and are the most authoritative offline reference — `copilot help permissions`, `copilot help providers`, etc.
 
 ---
 
@@ -52,6 +52,7 @@ The eight `help` topics are genuinely detailed and are the most authoritative of
 | `--model <model>` | Model to use, or `auto` to let Copilot pick (env: `COPILOT_MODEL`) |
 | `--context <tier>` | Context window tier: `default` or `long_context` |
 | `--effort, --reasoning-effort <level>` | `none`, `low`, `medium`, `high`, `xhigh`, `max` |
+| `--max-ai-credits <credits>` | Cap AI credits for this session (see `copilot help limits`) |
 | `--enable-reasoning-summaries` | Request reasoning summaries for OpenAI models |
 
 See [models.md](models.md) and [providers-byok.md](providers-byok.md).
@@ -101,6 +102,7 @@ See [permissions.md](permissions.md).
 | `--disable-builtin-mcps` | Disable all built-in MCP servers (currently `github-mcp-server`) |
 | `--disable-mcp-server <name>` | Disable one MCP server (repeatable) |
 | `--enable-all-github-mcp-tools` | Enable the full GitHub MCP toolset instead of the default CLI subset |
+| `--allow-all-mcp-server-instructions` | Include initialization instructions from **all** MCP servers in the system prompt (not just allowlisted ones) |
 | `--add-github-mcp-toolset <toolset>` | Enable a GitHub MCP toolset (repeatable; `all` for everything) |
 | `--add-github-mcp-tool <tool>` | Enable a specific GitHub MCP tool (repeatable; `*` for all) |
 
@@ -191,3 +193,10 @@ copilot --session-id=0cb916db-26aa-40f2-86b5-1ba81b225fd2
 - [slash-commands.md](slash-commands.md) — interactive `/` commands
 - [environment-variables.md](environment-variables.md) — env-var equivalents of many flags
 - [cli-vs-api.md](cli-vs-api.md) — when to use the CLI vs a programmatic API
+
+---
+
+## Sources
+
+- `copilot --help` and `copilot help` (GitHub Copilot CLI 1.0.68) — full flag/subcommand/topic list. Accessed 2026-07-02.
+- [GitHub Copilot CLI docs](https://docs.github.com/copilot/how-tos/copilot-cli) — Accessed 2026-07-02.

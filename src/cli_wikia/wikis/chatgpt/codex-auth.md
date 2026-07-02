@@ -109,3 +109,11 @@ codex logout          # remove cached credentials
 - [codex-overview.md](./codex-overview.md) — first-run flow
 - [codex-config.md](./codex-config.md) — `cli_auth_credentials_store`, `forced_login_method`
 - [codex-exec.md](./codex-exec.md) — auth in CI / non-interactive runs
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

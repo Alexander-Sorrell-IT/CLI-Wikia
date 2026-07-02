@@ -450,6 +450,15 @@ official docs for the exact `--allowed-tools` syntax in your version).
 | `read_many_files` | `include`, `exclude`, `recursive`, `useDefaultExcludes` |
 | `write_file` | `file_path`, `content` |
 | `replace` | `file_path`, `old_string`, `new_string`, `instruction`, `allow_multiple` |
+
+## Sources
+
+- Tools reference — https://geminicli.com/docs/reference/tools/ (Accessed 2026-07-02)
+- Tools overview — https://google-gemini.github.io/gemini-cli/docs/tools/ (Accessed 2026-07-02)
+
+Confirmed current internal tool names: `read_file`, `write_file`, `replace`,
+`read_many_files`, `run_shell_command`, `list_directory`, `glob`, `grep_search`
+(with `search_file_content` as a legacy alias), `web_fetch`, `google_web_search`.
 | `ask_user` | `questions` |
 | `write_todos` | `todos` |
 | `activate_skill` | `name` |

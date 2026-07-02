@@ -107,3 +107,8 @@ Plugins can ship status-line scripts. The plugin's `${CLAUDE_PLUGIN_ROOT}/status
 
 - [settings.md](./settings.md) — `statusLine` key
 - [environment-variables.md](./environment-variables.md) — env vars passed to the script
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

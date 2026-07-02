@@ -102,3 +102,8 @@ If no code changes were made since the selected point, the code-reverting option
 - [settings.md](./settings.md) — `general.checkpointing.enabled`
 - [commands.md](./commands.md) — `/restore`, `/rewind`
 - [configuration.md](./configuration.md) — storage paths under `~/.gemini`
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

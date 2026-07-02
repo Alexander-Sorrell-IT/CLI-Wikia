@@ -393,3 +393,8 @@ This forces tools into a Docker sandbox, allowlists a small set of safe tools, d
 - [mcp.md](./mcp.md) — configuring and using MCP servers
 - [environment-variables.md](./environment-variables.md) — `GEMINI_CLI_*` and `GEMINI_TELEMETRY_*` variables
 - [cli-reference.md](./cli-reference.md) — command-line flags
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

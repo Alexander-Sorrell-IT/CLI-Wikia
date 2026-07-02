@@ -114,7 +114,8 @@ runtime ceilings for the agent loop.
   "max_concurrent_agents": 3,
   "session_daily_limit": 10,
   "session_history_limit": 200,
-  "anthropic_api_key": ""
+  "anthropic_api_key": "",
+  "max_turns": 400
 }
 ```
 
@@ -173,3 +174,11 @@ variable takes precedence if set.
 - [permissions.md](permissions.md) — the `permissions` block in detail
 - [hooks.md](hooks.md) — the `hooks` block and `hooks.json`
 - [architecture.md](architecture.md) — how the layers load and merge
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- `deepseek-code config`; `~/.deepseek-code/config.json`, `~/.clawspring/settings.json`, and `~/.clawspring/config.json` inspected on disk.

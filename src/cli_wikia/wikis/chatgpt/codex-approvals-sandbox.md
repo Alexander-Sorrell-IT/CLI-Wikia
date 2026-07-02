@@ -134,3 +134,11 @@ approval_policy = "never"
 - [codex-config.md](./codex-config.md) — `sandbox_mode`, `approval_policy`, `sandbox_workspace_write.*` keys
 - [codex-cli-reference.md](./codex-cli-reference.md) — `--sandbox`, `--ask-for-approval`, `--full-auto`, `--yolo`
 - [codex-exec.md](./codex-exec.md) — how approvals behave in non-interactive runs
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

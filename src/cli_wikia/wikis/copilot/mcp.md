@@ -125,3 +125,10 @@ See [permissions.md](permissions.md).
 - [plugins.md](plugins.md) — plugins can bundle MCP servers
 - [permissions.md](permissions.md) — gating MCP tools
 - [cli-reference.md](cli-reference.md) — every `--*-mcp-*` flag
+
+---
+
+## Sources
+
+- `copilot mcp --help` (GitHub Copilot CLI 1.0.68) — config sources (`~/.copilot/mcp-config.json`, `.mcp.json`, `.github/mcp.json`), `add`/`get`/`list`/`remove`. Accessed 2026-07-02.
+- [GitHub Copilot CLI docs](https://docs.github.com/copilot/how-tos/copilot-cli) — Accessed 2026-07-02.

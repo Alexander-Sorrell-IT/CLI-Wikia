@@ -32,6 +32,7 @@ MARK_END = "<!-- cli-wikia:end -->"
 INSTRUCTION_CANDIDATES = [
     "CLAUDE.md", "GEMINI.md", "AGENTS.md",
     ".github/copilot-instructions.md", "QWEN.md", "codex.md",
+    "CLAWSPRING.md",
 ]
 
 

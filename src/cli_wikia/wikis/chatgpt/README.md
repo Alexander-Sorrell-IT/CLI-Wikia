@@ -40,6 +40,7 @@ openai api chat.completions.create -m gpt-4o -g user "Explain async/await"
 | [codex-agents-md.md](./codex-agents-md.md) | `AGENTS.md` — discovery order, merging, and what to put where |
 | [codex-mcp.md](./codex-mcp.md) | MCP servers — stdio & HTTP transports, all keys, Codex-as-MCP-server |
 | [codex-slash-commands.md](./codex-slash-commands.md) | In-TUI commands (`/model`, `/approvals`, `/diff`, `/review`, `/init`, …) |
+| [hooks.md](./hooks.md) | Lifecycle hooks — events, `hooks.json` / `[hooks]` config, trust, `/hooks` |
 | [codex-auth.md](./codex-auth.md) | Sign in with ChatGPT vs API key, device auth, headless/SSH, access tokens |
 | [codex-exec.md](./codex-exec.md) | Non-interactive `codex exec` for scripting and CI |
 
@@ -78,3 +79,11 @@ openai api chat.completions.create -m gpt-4o -g user "Explain async/await"
 - Codex docs: <https://developers.openai.com/codex/>
 - Codex source: <https://github.com/openai/codex>
 - OpenAI API & models: <https://platform.openai.com/docs/>
+
+## Sources
+
+- OpenAI Developers — Codex CLI: <https://developers.openai.com/codex/cli> (Accessed 2026-07-02)
+- OpenAI Developers — Configuration Reference: <https://developers.openai.com/codex/config-reference> (Accessed 2026-07-02)
+- OpenAI Developers — Hooks: <https://developers.openai.com/codex/hooks> (Accessed 2026-07-02)
+- GitHub — openai/codex: <https://github.com/openai/codex> (Accessed 2026-07-02)
+- Not locally verified: Codex CLI is not installed on this machine as of 2026-07-02; facts are from the official docs above.

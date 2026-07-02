@@ -119,3 +119,8 @@ If you only need a one-shot background task (not a continuous watcher), use an `
 - [plugins.md](./plugins.md) — packaging monitors with a plugin
 - [hooks.md](./hooks.md) — `Notification` hook + `asyncRewake`
 - [channels.md](./channels.md) — push events from external systems instead
+
+## Sources
+
+- Claude Code official docs: <https://code.claude.com/docs> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, cli-reference, headless, memory, mcp) were re-verified against the official docs and the installed `claude` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

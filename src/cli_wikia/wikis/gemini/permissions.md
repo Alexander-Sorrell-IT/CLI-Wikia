@@ -250,3 +250,8 @@ In headless runs the policy engine auto-approves `enter_plan_mode`/`exit_plan_mo
 - [configuration.md](./configuration.md) — environment variables and policy file locations
 - [commands.md](./commands.md) — `/plan`, `/permissions`, `/policies`, `/settings`
 - [cli-reference.md](./cli-reference.md) — `--approval-mode`, `--skip-trust`, `--admin-policy`
+
+## Sources
+
+- Gemini CLI official docs: <https://google-gemini.github.io/gemini-cli/> and <https://github.com/google-gemini/gemini-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, settings, headless, tools, context-files) were re-verified against the official docs and the installed `gemini` CLI on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

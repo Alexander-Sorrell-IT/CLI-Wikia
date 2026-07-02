@@ -46,6 +46,9 @@ If you mistype a subcommand, Claude Code suggests the closest match (`claude udp
 | `--fork-session` | When resuming, create a new session ID instead of reusing the original |
 | `--from-pr <number-or-url>` | Resume sessions linked to a specific PR (GitHub, GitHub Enterprise, GitLab, Bitbucket) |
 | `--print`, `-p [query]` | Print mode — non-interactive |
+| `--bg`, `--background` | Start the session as a background agent and return immediately (manage with `claude agents`) |
+| `--brief` | Enable the `SendUserMessage` tool for agent-to-user communication |
+| `--ax-screen-reader` | Screen-reader-friendly output (flat text, no borders/animations) |
 
 ### Models & effort
 
@@ -238,3 +241,11 @@ In **v2.1.63** the `Task` tool was renamed to **`Agent`**. Existing `Task(...)` 
 - [permission-modes.md](./permission-modes.md) — what each mode actually does
 - [models.md](./models.md) — model aliases and IDs
 - [environment-variables.md](./environment-variables.md) — env vars that change CLI behavior
+
+---
+
+## Sources
+
+- CLI reference — <https://code.claude.com/docs/en/cli-reference> (Accessed 2026-07-02).
+- Headless / print mode — <https://code.claude.com/docs/en/headless> (Accessed 2026-07-02) for `-p`, `--output-format`, `--json-schema`, `--bare`.
+- Verified against `claude --help` and `claude --version` (2.1.198) on 2026-07-02. Flags `--bg/--background`, `--brief`, and `--ax-screen-reader` confirmed present in this build.

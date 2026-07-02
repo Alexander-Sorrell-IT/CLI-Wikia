@@ -115,3 +115,8 @@ copilot completion fish > ~/.config/fish/completions/copilot.fish
 - [modes.md](modes.md) — plan, autopilot, fleet, delegate
 - [permissions.md](permissions.md) — control what the agent may do
 - [configuration.md](configuration.md) — `settings.json` and the `~/.copilot` layout
+
+## Sources
+
+- GitHub Copilot CLI official docs: <https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli> and <https://github.com/github/copilot-cli> (Accessed 2026-07-02)
+- Core pages of this wiki (hooks, configuration, cli-reference, custom-instructions, mcp, permissions) were re-verified against the official docs and the installed `copilot` CLI 1.0.68 on 2026-07-02; this page has not been individually re-verified since — confirm details against the official docs above.

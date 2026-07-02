@@ -134,3 +134,11 @@ The same `deepseek-v4-pro` / `deepseek-v4-flash` model IDs are served by the pub
 DeepSeek API (OpenAI-compatible at `https://api.deepseek.com`, with an
 Anthropic-compatible endpoint at `https://api.deepseek.com/anthropic`). DeepSeek Code
 is an agent built on top of that API. See [cli-vs-api.md](cli-vs-api.md).
+
+
+## Sources
+
+No public documentation exists for DeepSeek Code or the Clawspring Agent Runtime as of 2026-07-02. Web searches for "Clawspring agent runtime" and "clawspring deepseek-code" return only unrelated third-party DeepSeek CLIs and DeepSeek's official API docs, none of which describe this tool. Everything here was verified against the installed tool on 2026-07-02:
+
+- `deepseek-code --version` -> `DeepSeek Code v2.0.0` / `clawspring v3.05.5`
+- `deepseek-code --help` (MODELS section: `deepseek-v4-flash` 284B/13B active, `deepseek-v4-pro` 1.6T/49B active, 1M ctx). Model parameter/context facts corroborated by public DeepSeek sources.
