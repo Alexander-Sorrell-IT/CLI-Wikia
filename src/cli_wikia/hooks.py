@@ -17,7 +17,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import sys
+from pathlib import Path
 
 from . import MODELS
 
@@ -93,8 +95,26 @@ def hook_events(model):
     return sorted(set(events))
 
 
+# Known-good per-model settings paths. Preferred over the wiki regex heuristic
+# below; extend as models are verified.
+KNOWN_SETTINGS_PATHS = {
+    "claude": "~/.claude/settings.json",
+}
+
+# Known-good project config roots where the wiki word-count heuristic picks the
+# wrong directory (antigravity's most-mentioned dot-dir is `.system_generated/`,
+# its logs dir; the real workspace config dir is `.agents/` per customization.md).
+KNOWN_CONFIG_ROOTS = {
+    "antigravity": ".agents",
+}
+
+
 def hook_config_path(model):
-    """Where this tool stores hooks/settings — extracted from its wiki text."""
+    """Where this tool stores hooks/settings — a verified per-model path when we
+    have one, otherwise extracted from its wiki text (heuristic)."""
+    known = KNOWN_SETTINGS_PATHS.get(model)
+    if known:
+        return known
     text = _wiki_text(model, "hooks.md", "configuration.md", "settings.md")
     paths = re.findall(r"`?(~?[\w./-]*(?:settings|hooks)\.json)`?", text)
     paths = [p.strip("`") for p in paths if p]
@@ -118,6 +138,9 @@ def config_root(model):
     .github), derived dynamically from the model's wiki — the most-mentioned
     dot-directory. Used by downstream tools (e.g. cli-enforcement) to know where
     to deploy per-model files. Returns None if the wiki names no such dir."""
+    known = KNOWN_CONFIG_ROOTS.get(model)
+    if known:
+        return known
     text = _wiki_text(model, "hooks.md", "configuration.md", "settings.md",
                       "getting-started.md", "cli-reference.md")
     dirs = re.findall(r"(?<![\w/~.])(\.[a-z][\w-]+)/", text)
@@ -158,9 +181,15 @@ def _strip_block(text):
     ).rstrip() + ("\n" if text.endswith("\n") else "")
 
 
+def _instruction_path(model, override=None):
+    """Absolute path of the Level-1 instructions file (cwd-relative by default)."""
+    p = Path(override) if override else Path.cwd() / instruction_file(model)
+    return p.resolve()
+
+
 def cmd_enable(args):
     model = _resolve(args.model)
-    path = args.file or instruction_file(model)
+    path = _instruction_path(model, args.file)
     block = _awareness_block(model)
     existing = _read_text(path)
     new = _strip_block(existing)
@@ -181,7 +210,7 @@ def cmd_enable(args):
 
 def cmd_disable(args):
     model = _resolve(args.model)
-    path = args.file or instruction_file(model)
+    path = _instruction_path(model, args.file)
     if not os.path.exists(path):
         print(f"{model}: {path} does not exist — nothing to remove")
         return
@@ -253,16 +282,66 @@ def cmd_manifest(args):
     print(f"  then:  wikia hooks apply {model}")
 
 
+def _load_json_file(path, what):
+    """json.load with a clean error message instead of a traceback."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        sys.exit(f"error: could not read {what} ({path}): {e}")
+    if not isinstance(data, dict):
+        sys.exit(f"error: {what} ({path}) top level is not a JSON object — refusing to touch it.")
+    return data
+
+
+def _group_commands(group):
+    """The command strings inside one handler group (our identity for dedupe)."""
+    cmds = set()
+    if isinstance(group, dict):
+        if group.get("command"):
+            cmds.add(group["command"])
+        for h in group.get("hooks", []) or []:
+            if isinstance(h, dict) and h.get("command"):
+                cmds.add(h["command"])
+    return frozenset(cmds)
+
+
+def _load_manifest_hooks(model):
+    """The manifest's chosen event→handler-groups, validated against the wiki."""
+    json_path = os.path.join(manifest_dir(), f"{model}.hooks.json")
+    if not os.path.exists(json_path):
+        sys.exit(f"no manifest yet — run `wikia hooks manifest {model}` first.")
+    manifest = _load_json_file(json_path, "manifest")
+    chosen = {ev: hs for ev, hs in manifest.items() if hs and not ev.startswith("_")}
+    return json_path, chosen
+
+
+def _resolve_target(args, model, json_path):
+    target = args.file or hook_config_path(model)
+    if not target:
+        print(f"{model}: couldn't find a settings file in the wiki. Your manifest is "
+              f"ready at {json_path}; add these hooks via the tool itself.")
+        return None
+    return os.path.expanduser(target)
+
+
+def _write_settings(target, merged):
+    """Back up the settings file, then write the merged settings."""
+    parent = os.path.dirname(os.path.abspath(target))
+    os.makedirs(parent, exist_ok=True)
+    if os.path.exists(target):
+        backup = target + ".bak-cli-wikia"
+        shutil.copy2(target, backup)
+        print(f"backup saved: {backup}")
+    with open(target, "w", encoding="utf-8") as f:
+        f.write(json.dumps(merged, indent=2) + "\n")
+
+
 def cmd_apply(args):
     model = _resolve(args.model)
     if not has_hook_system(model):
         sys.exit(f"{model}'s wiki documents no hook system to apply to.")
-    json_path = os.path.join(manifest_dir(), f"{model}.hooks.json")
-    if not os.path.exists(json_path):
-        sys.exit(f"no manifest yet — run `wikia hooks manifest {model}` first.")
-    with open(json_path, encoding="utf-8") as f:
-        manifest = json.load(f)
-    chosen = {ev: hs for ev, hs in manifest.items() if hs and not ev.startswith("_")}
+    json_path, chosen = _load_manifest_hooks(model)
     if not chosen:
         print(f"{model}: manifest is empty — add hooks in {json_path} first.")
         return
@@ -271,32 +350,82 @@ def cmd_apply(args):
         bad = [ev for ev in chosen if ev not in known]
         if bad:
             sys.exit(f"event(s) not in {model}'s wiki: {', '.join(bad)}")
-    target = args.file or hook_config_path(model)
+    target = _resolve_target(args, model, json_path)
     if not target:
-        print(f"{model}: couldn't find a settings file in the wiki. Your manifest is "
-              f"ready at {json_path}; add these hooks via the tool itself.")
         return
-    target = os.path.expanduser(target)
-    current = {}
-    if os.path.exists(target):
-        with open(target, encoding="utf-8") as f:
-            current = json.load(f)
+    print(f"target settings file: {target}")
+    current = _load_json_file(target, "settings file") if os.path.exists(target) else {}
     merged = dict(current)
-    merged.setdefault("hooks", {})
+    hooks = merged.setdefault("hooks", {})
+    added = 0
     for ev, handlers in chosen.items():
-        merged["hooks"][ev] = handlers  # verbatim — the tool's own handler schema
+        existing = hooks.get(ev)
+        if not isinstance(existing, list):
+            existing = []
+        have = set()
+        for g in existing:
+            have |= _group_commands(g)
+        for g in handlers:
+            gc = _group_commands(g)
+            if gc and gc <= have:
+                continue  # already installed — keep the user's copy
+            existing.append(g)  # verbatim — the tool's own handler schema
+            have |= gc
+            added += 1
+        hooks[ev] = existing
     preview = json.dumps(merged, indent=2)
     if not args.write:
-        print(f"[dry-run] would merge {len(chosen)} event(s) into: {target}")
+        print(f"[dry-run] would merge {len(chosen)} event(s) ({added} new handler group(s)) into: {target}")
         print("--- resulting file ---")
         print(preview[:2000] + ("\n…" if len(preview) > 2000 else ""))
         print("\nre-run with --write to install.")
         return
-    parent = os.path.dirname(os.path.abspath(target))
-    os.makedirs(parent, exist_ok=True)
-    with open(target, "w", encoding="utf-8") as f:
-        f.write(preview + "\n")
-    print(f"{model}: wrote {len(chosen)} hook event(s) into {target}")
+    _write_settings(target, merged)
+    print(f"{model}: merged {len(chosen)} hook event(s) ({added} new handler group(s)) into {target}")
+
+
+def cmd_unapply(args):
+    """Remove exactly the handler groups our manifest installed (by command string)."""
+    model = _resolve(args.model)
+    json_path, chosen = _load_manifest_hooks(model)
+    ours = set()
+    for handlers in chosen.values():
+        for g in handlers:
+            ours |= _group_commands(g)
+    if not ours:
+        print(f"{model}: manifest at {json_path} defines no commands — nothing to remove.")
+        return
+    target = _resolve_target(args, model, json_path)
+    if not target:
+        return
+    print(f"target settings file: {target}")
+    if not os.path.exists(target):
+        print(f"{model}: {target} does not exist — nothing to remove.")
+        return
+    current = _load_json_file(target, "settings file")
+    hooks = current.get("hooks")
+    removed = 0
+    if isinstance(hooks, dict):
+        for ev in list(hooks):
+            groups = hooks[ev]
+            if not isinstance(groups, list):
+                continue
+            kept = [g for g in groups
+                    if not (_group_commands(g) and _group_commands(g) <= ours)]
+            removed += len(groups) - len(kept)
+            if kept:
+                hooks[ev] = kept
+            else:
+                del hooks[ev]
+    if not removed:
+        print(f"{model}: no cli-wikia-installed hooks found in {target}.")
+        return
+    if not args.write:
+        print(f"[dry-run] would remove {removed} handler group(s) from: {target}")
+        print("\nre-run with --write to remove.")
+        return
+    _write_settings(target, current)
+    print(f"{model}: removed {removed} handler group(s) from {target}")
 
 
 def cmd_status(args):
@@ -307,12 +436,12 @@ def cmd_status(args):
             hooks = f"yes ({n} events)" if n else "yes (events n/a)"
         else:
             hooks = "no"
-        ifile = instruction_file(m)
-        aware = "no" if os.path.exists(ifile) else "—"
-        if os.path.exists(ifile) and MARK_START in _read_text(ifile):
+        ipath = _instruction_path(m)
+        aware = "no" if os.path.exists(ipath) else "—"
+        if os.path.exists(ipath) and MARK_START in _read_text(ipath):
             aware = "installed"
         man = "yes" if os.path.exists(os.path.join(manifest_dir(), f"{m}.hooks.json")) else "no"
-        print(f"{m:12} hooks: {hooks:16} L1({ifile}): {aware:9} L2-manifest: {man}")
+        print(f"{m:12} hooks: {hooks:16} L1({ipath}): {aware:9} L2-manifest: {man}")
 
 
 # --------------------------------------------------------------------------- #

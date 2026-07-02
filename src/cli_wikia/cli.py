@@ -177,7 +177,11 @@ def cmd_ask(args):
         if runner == "ollama":
             subprocess.run(["ollama", "run", args.ollama_model, prompt], check=False)
         else:
-            subprocess.run([runner, prompt], check=False)
+            # Use the model's one-shot template (same mechanism as `update`) so
+            # e.g. claude runs `claude -p <prompt>` non-interactively.
+            tpl = MODEL_SOURCES.get(m, {}).get("ask")
+            argv = [prompt if tok == "{q}" else tok for tok in tpl] if tpl else [prompt]
+            subprocess.run([runner, *argv], check=False)
     except FileNotFoundError:
         sys.exit(f"could not run '{runner}'.")
 
@@ -190,7 +194,7 @@ def snapshot_dir():
     return os.path.join(base, "cli-wikia", "snapshots")
 
 
-def _run_cli(cli, probe, timeout=30):
+def _run_cli(cli, probe, timeout=30, env=None):
     """Run one read-only CLI probe and return its labelled output."""
     try:
         r = subprocess.run(
@@ -199,6 +203,7 @@ def _run_cli(cli, probe, timeout=30):
             text=True,
             timeout=timeout,
             stdin=subprocess.DEVNULL,
+            env=env,
         )
         return f"$ {cli} {' '.join(probe)}\n{r.stdout}{r.stderr}".strip()
     except (subprocess.TimeoutExpired, OSError) as e:
@@ -270,7 +275,10 @@ def capture_sources(m, cli, use_docs, use_model):
         for url in urls[:2]:
             parts.append(fetch_docs(url))
     parts.append(_run_cli(cli, src.get("version", ["--version"])))
-    parts.append(_run_cli(cli, ["--help"]))
+    # Fix the terminal width so --help output (often wrapped to $COLUMNS)
+    # doesn't produce spurious diffs between runs. (The raw-HTML docs diffing
+    # above remains noisy by nature; that's accepted.)
+    parts.append(_run_cli(cli, ["--help"], env={**os.environ, "COLUMNS": "80"}))
     if use_model and src.get("ask"):
         mq = query_model(cli, src["ask"], WHATS_NEW_Q)
         if mq:
@@ -342,7 +350,7 @@ def build_parser():
     p = argparse.ArgumentParser(
         prog="wikia",
         description="Offline reference wiki for AI coding CLIs "
-        "(claude, deepseek, copilot, chatgpt, gemini).",
+        "(claude, deepseek, copilot, chatgpt, gemini, antigravity).",
     )
     p.add_argument("--version", action="version", version=f"cli-wikia {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -414,6 +422,12 @@ def build_parser():
     s.add_argument("--file", help="target settings file (default: per-model)")
     s.add_argument("--write", action="store_true", help="actually install the hooks")
     s.set_defaults(func=H.cmd_apply)
+
+    s = hsub.add_parser("remove", help="Level 2: remove the hooks installed by apply (dry-run unless --write)")
+    s.add_argument("model")
+    s.add_argument("--file", help="target settings file (default: per-model)")
+    s.add_argument("--write", action="store_true", help="actually remove the hooks")
+    s.set_defaults(func=H.cmd_unapply)
 
     # schedule — config-driven auto-update timer (see schedule.py)
     from . import schedule as S

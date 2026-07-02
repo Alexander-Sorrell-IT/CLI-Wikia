@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -75,10 +76,11 @@ def _exec_command(upgrade):
     log = _log_path()
     parts = []
     if upgrade:
-        parts.append(f"{sys.executable} -m pip install --quiet --upgrade cli-wikia")
-    parts.append(f"{wikia} update --all --write")
+        parts.append(f"{shlex.quote(sys.executable)} -m pip install --quiet --upgrade cli-wikia")
+    parts.append(f"{shlex.quote(wikia)} update --all --write")
     chain = " ; ".join(parts)
-    return f"/bin/sh -c 'mkdir -p {os.path.dirname(log)} ; {{ date ; {chain} ; }} >> {log} 2>&1'"
+    script = f"mkdir -p {shlex.quote(os.path.dirname(log))} ; {{ date ; {chain} ; }} >> {shlex.quote(log)} 2>&1"
+    return f"/bin/sh -c {shlex.quote(script)}"
 
 
 def _service_unit(upgrade):
@@ -166,7 +168,7 @@ def cmd_apply(args):
         return
     if not _have_systemd_user():
         sys.exit(
-            "systemd user instance unavailable. Cron fallback:\n"
+            "systemd user instance unavailable. Cron fallback (Linux/macOS with cron only):\n"
             f"  (crontab -l 2>/dev/null; echo '@{interval} {shutil.which('wikia') or 'wikia'} update --all --write') | crontab -"
         )
     os.makedirs(udir, exist_ok=True)
