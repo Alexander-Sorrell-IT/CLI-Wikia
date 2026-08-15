@@ -1,4 +1,5 @@
-"""CLI read/list/models commands (from package data) and the `ask` one-shot path."""
+"""CLI read/list/models commands (from package data), the `ask` one-shot path,
+and `capture_sources` subcommand probes."""
 from types import SimpleNamespace
 
 from cli_wikia import cli
@@ -51,3 +52,36 @@ def test_ask_uses_oneshot_template(monkeypatch, capsys):
     prompt = argv[2]
     assert "How do hooks work?" in prompt
     assert "REFERENCE DOCS" in prompt
+
+
+def test_capture_sources_runs_subcommand_probes(monkeypatch):
+    """capture_sources() must probe each subcommand listed in MODEL_SOURCES."""
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        return SimpleNamespace(returncode=0, stdout="out", stderr="")
+
+    monkeypatch.setattr(cli.subprocess, "run", fake_run)
+    # Patch fetch_docs so it doesn't hit the network.
+    monkeypatch.setattr(cli, "fetch_docs", lambda url: f"# docs: {url}\nok")
+
+    result = cli.capture_sources("claude", "claude", use_docs=False, use_model=False)
+
+    # Top-level --version and --help must always be present.
+    assert any(c == ["claude", "--version"] for c in calls), calls
+    assert any(c == ["claude", "--help"] for c in calls), calls
+
+    # All three claude subcommand probes must appear.
+    for sub in cli.MODEL_SOURCES["claude"]["subcommands"]:
+        assert any(c == ["claude"] + sub for c in calls), \
+            f"missing probe for {sub!r}; calls={calls}"
+
+    # Result blob must contain the stub output from every probe.
+    assert result.count("$ claude") >= 1 + len(cli.MODEL_SOURCES["claude"]["subcommands"])
+
+
+def test_capture_sources_no_subcommands_for_bob():
+    """bob has subcommands=[] — capture_sources skips CLI probes entirely
+    (bob has no CLI binary; the docs-only path is used instead)."""
+    assert cli.MODEL_SOURCES["bob"]["subcommands"] == []

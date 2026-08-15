@@ -35,36 +35,56 @@ MODEL_CLIS = {
 #  - docs: official documentation URL (best-effort; edit if a tool moves its docs).
 #  - ask: argv template to query the model in one-shot mode; "{q}" = the question.
 #         None means the model can't be queried that way (e.g. tool not installed).
+#  - subcommands: list of argv probes (e.g. ["hooks", "--help"]) to run in addition
+#         to the top-level --help. Each is appended to the CLI name and run with
+#         COLUMNS=80 so output is stable across terminals.
 MODEL_SOURCES = {
     "claude": {
         "version": ["--version"],
         "docs": "https://docs.claude.com/en/docs/claude-code/overview",
         "ask": ["-p", "{q}"],
+        "subcommands": [
+            ["hooks", "--help"],
+            ["config", "--help"],
+            ["mcp", "--help"],
+        ],
     },
     "deepseek": {
         "version": ["--version"],
         "docs": "https://api-docs.deepseek.com/",
         "ask": ["-p", "{q}"],
+        "subcommands": [
+            ["hooks", "--help"],
+            ["config", "--help"],
+        ],
     },
     "copilot": {
         "version": ["--version"],
         "docs": "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli",
         "ask": ["-p", "{q}", "--allow-all-tools"],
+        "subcommands": [
+            ["hooks", "--help"],
+        ],
     },
     "chatgpt": {
         "version": ["--version"],
         "docs": "https://developers.openai.com/codex/cli/",
         "ask": None,  # codex isn't installed; openai CLI isn't a one-shot agent
+        "subcommands": [],
     },
     "gemini": {
         "version": ["--version"],
         "docs": "https://google-gemini.github.io/gemini-cli/",
         "ask": ["-p", "{q}"],
+        "subcommands": [
+            ["--help"],  # gemini subcommand help via top-level flags
+        ],
     },
     "antigravity": {
         "version": ["--version"],
         "docs": "https://antigravity.google/docs",
         "ask": ["-p", "{q}"],
+        "subcommands": [],
     },
     "bob": {
         # Bob has no standalone CLI — no version probe, no ask template.
@@ -72,6 +92,7 @@ MODEL_SOURCES = {
         "version": None,
         "docs": "https://github.com/Alexander-Sorrell-IT/matrixbuilderops",
         "ask": None,
+        "subcommands": [],
     },
 }
 
@@ -270,9 +291,9 @@ def query_model(cli, ask_template, question):
 def capture_sources(m, cli, use_docs, use_model):
     """Gather sources for a model into one snapshot blob, leaning on the docs.
     Order = priority: (1) OFFICIAL DOCUMENTATION first (URLs discovered from the
-    model's own wiki, plus a seed), (2) the CLI's own facts (version + help),
-    (3) the model's self-report (secondary — models are unreliable about
-    themselves). Use --no-docs / --no-model to drop a source."""
+    model's own wiki, plus a seed), (2) the CLI's own facts (version + help +
+    subcommand help), (3) the model's self-report (secondary — models are
+    unreliable about themselves). Use --no-docs / --no-model to drop a source."""
     src = MODEL_SOURCES.get(m, {})
     parts = []
     if use_docs:
@@ -286,7 +307,12 @@ def capture_sources(m, cli, use_docs, use_model):
     # Fix the terminal width so --help output (often wrapped to $COLUMNS)
     # doesn't produce spurious diffs between runs. (The raw-HTML docs diffing
     # above remains noisy by nature; that's accepted.)
-    parts.append(_run_cli(cli, ["--help"], env={**os.environ, "COLUMNS": "80"}))
+    fixed_env = {**os.environ, "COLUMNS": "80"}
+    parts.append(_run_cli(cli, ["--help"], env=fixed_env))
+    # Per-model subcommand probes (e.g. `claude hooks --help`) — catches new
+    # subcommands and flag changes that the top-level --help doesn't list.
+    for sub in src.get("subcommands", []):
+        parts.append(_run_cli(cli, sub, env=fixed_env))
     if use_model and src.get("ask"):
         mq = query_model(cli, src["ask"], WHATS_NEW_Q)
         if mq:
