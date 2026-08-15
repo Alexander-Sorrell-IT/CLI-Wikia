@@ -498,6 +498,26 @@ def build_parser():
     s.add_argument("--write", action="store_true", help="actually remove the hooks")
     s.set_defaults(func=H.cmd_unapply)
 
+    # daemon — self-contained background process (replaces launchd/systemd)
+    from . import daemon as DM
+
+    dp = sub.add_parser("daemon", help="run wikia update as a background daemon")
+    dsub = dp.add_subparsers(dest="daemon_cmd", required=True)
+
+    d = dsub.add_parser("start", help="start the daemon (background unless --foreground)")
+    d.add_argument("--foreground", "-f", action="store_true", help="run in foreground (don't daemonize)")
+    d.set_defaults(func=DM.cmd_start)
+
+    d = dsub.add_parser("stop", help="stop the running daemon")
+    d.set_defaults(func=DM.cmd_stop)
+
+    d = dsub.add_parser("status", help="show whether the daemon is running")
+    d.set_defaults(func=DM.cmd_status)
+
+    d = dsub.add_parser("logs", help="tail the daemon log")
+    d.add_argument("-n", "--lines", type=int, default=40, help="number of lines to show (default: 40)")
+    d.set_defaults(func=DM.cmd_logs)
+
     # schedule — config-driven auto-update timer (see schedule.py)
     from . import schedule as S
 
