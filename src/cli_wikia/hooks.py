@@ -32,7 +32,7 @@ MARK_END = "<!-- cli-wikia:end -->"
 INSTRUCTION_CANDIDATES = [
     "CLAUDE.md", "GEMINI.md", "AGENTS.md",
     ".github/copilot-instructions.md", "QWEN.md", "codex.md",
-    "CLAWSPRING.md",
+    "CLAWSPRING.md", "BOB.md",
 ]
 
 
@@ -100,6 +100,7 @@ def hook_events(model):
 # below; extend as models are verified.
 KNOWN_SETTINGS_PATHS = {
     "claude": "~/.claude/settings.json",
+    "bob": "~/.config/bob/settings.json",
 }
 
 # Known-good project config roots where the wiki word-count heuristic picks the
@@ -107,6 +108,7 @@ KNOWN_SETTINGS_PATHS = {
 # its logs dir; the real workspace config dir is `.agents/` per customization.md).
 KNOWN_CONFIG_ROOTS = {
     "antigravity": ".agents",
+    "bob": ".agents",
 }
 
 

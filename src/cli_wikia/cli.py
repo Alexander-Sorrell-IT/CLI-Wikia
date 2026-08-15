@@ -25,6 +25,7 @@ MODEL_CLIS = {
     "chatgpt": "codex",  # OpenAI Codex CLI (may not be installed yet)
     "gemini": "gemini",
     "antigravity": "agy",  # Google Antigravity CLI
+    "bob": None,  # Bob has no standalone CLI binary — it IS the application
 }
 
 # Sources the `update` command checks for changes, per model. The real signal
@@ -64,6 +65,13 @@ MODEL_SOURCES = {
         "version": ["--version"],
         "docs": "https://antigravity.google/docs",
         "ask": ["-p", "{q}"],
+    },
+    "bob": {
+        # Bob has no standalone CLI — no version probe, no ask template.
+        # Docs are the wiki itself; update checks the github repo instead.
+        "version": None,
+        "docs": "https://github.com/Alexander-Sorrell-IT/matrixbuilderops",
+        "ask": None,
     },
 }
 
@@ -303,6 +311,41 @@ def cmd_update(args):
     changed_any = False
     for m in models:
         cli = MODEL_CLIS.get(m)
+        src = MODEL_SOURCES.get(m, {})
+        if cli is None and src.get("docs"):
+            # Model has no CLI binary (e.g. bob) — docs-only update check.
+            current = fetch_docs(src["docs"])
+            snap = os.path.join(sdir, f"{m}.txt")
+            if not os.path.exists(snap):
+                with open(snap, "w", encoding="utf-8") as f:
+                    f.write(current)
+                print(f"{m:12} baseline snapshot saved (docs only). Run again later to detect changes.")
+                continue
+            with open(snap, encoding="utf-8") as f:
+                prev = f.read()
+            if prev == current:
+                print(f"{m:12} up to date (docs only, no change)")
+                continue
+            diff = [
+                ln for ln in difflib.unified_diff(
+                    prev.splitlines(), current.splitlines(), lineterm="", n=0
+                )
+                if ln and ln[0] in "+-" and not ln.startswith(("+++", "---"))
+            ]
+            print(f"{m:12} CHANGED (docs) — {len(diff)} differing lines:")
+            for ln in diff[:30]:
+                print(f"             {ln}")
+            if len(diff) > 30:
+                print(f"             … (+{len(diff) - 30} more)")
+            print(f"             review/update curated docs in: {model_dir(m)}")
+            if args.write:
+                with open(snap, "w", encoding="utf-8") as f:
+                    f.write(current)
+                print(f"             snapshot updated.")
+            else:
+                print(f"             re-run with --write to accept this as the new baseline.")
+            changed_any = True
+            continue
         if not cli:
             print(f"{m:12} no associated CLI — skip")
             continue
