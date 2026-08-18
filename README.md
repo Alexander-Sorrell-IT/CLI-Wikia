@@ -76,4 +76,5 @@ All mutating commands are dry-run by default; pass `--write` to apply.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+[PolyForm Noncommercial 1.0.0](LICENSE) — free for noncommercial use.
+Commercial use requires a paid license: matrixbuilderops@proton.me
