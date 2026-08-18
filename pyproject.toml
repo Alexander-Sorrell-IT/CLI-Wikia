@@ -13,7 +13,6 @@ authors = [{ name = "Alexander Sorrell", email = "codehunterextreme@gmail.com" }
 keywords = ["ai", "cli", "wiki", "claude", "deepseek", "copilot", "chatgpt", "gemini", "antigravity", "bob", "reference"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Documentation",
 ]
