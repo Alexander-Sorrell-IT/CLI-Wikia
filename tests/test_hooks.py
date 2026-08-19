@@ -115,3 +115,57 @@ def test_apply_on_non_dict_toplevel_exits_clean_and_leaves_file(isolated_home, c
     assert isinstance(e.value.code, str) and "not a JSON object" in e.value.code
     assert target.read_text() == before  # untouched
     assert "Traceback" not in capsys.readouterr().err
+
+
+# ── where hooks get written: --file > model env var > WIKIA_CONFIG_DIR > wiki ──
+# 0.17.0 shipped this redirect with no test of its own; its only effect on the
+# suite was breaking four unrelated tests. Each branch is pinned here.
+
+def _resolve(model="claude", file=None):
+    return hooks._resolve_target(SimpleNamespace(model=model, file=file, write=False),
+                                 model, "/tmp/manifest.json")
+
+
+def test_default_target_is_the_wiki_path(isolated_home):
+    assert _resolve() == str(_settings_path(isolated_home))
+
+
+def test_explicit_file_beats_every_override(isolated_home, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/opt/ccd")
+    monkeypatch.setenv("WIKIA_CONFIG_DIR", "/opt/wcd")
+    assert _resolve(file="/tmp/explicit.json") == "/tmp/explicit.json"
+
+
+def test_model_env_var_redirects(isolated_home, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/opt/ccd")
+    assert _resolve() == "/opt/ccd/settings.json"
+
+
+def test_generic_var_covers_models_with_no_known_variable(isolated_home, monkeypatch):
+    # gemini has config_dir_env=null; without the generic fallback it would be
+    # unreachable, which is what made the per-model field alone insufficient.
+    monkeypatch.setenv("WIKIA_CONFIG_DIR", "/opt/wcd")
+    from cli_wikia import registry
+    assert registry.config_dir_env("gemini") is None
+    target = _resolve(model="gemini")
+    assert target.startswith("/opt/wcd"), target
+
+
+def test_model_var_wins_over_generic(isolated_home, monkeypatch):
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/opt/ccd")
+    monkeypatch.setenv("WIKIA_CONFIG_DIR", "/opt/wcd")
+    assert _resolve() == "/opt/ccd/settings.json"
+
+
+def test_prefix_is_anchored_so_claude_alt_is_not_matched(isolated_home, monkeypatch):
+    # ~/.claude must not match ~/.claude-alt — the separator is what stops it.
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/opt/ccd")
+    monkeypatch.setattr(hooks, "hook_config_path", lambda m: "~/.claude-alt/settings.json")
+    assert _resolve() == str(isolated_home / ".claude-alt" / "settings.json")
+
+
+def test_unrelated_root_is_left_alone(isolated_home, monkeypatch):
+    # chatgpt's root is .codex; CLAUDE_CONFIG_DIR must not touch it.
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/opt/ccd")
+    target = _resolve(model="chatgpt")
+    assert target is None or "/opt/ccd" not in target, target

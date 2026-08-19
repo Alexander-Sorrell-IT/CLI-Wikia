@@ -16,6 +16,7 @@ import urllib.request
 from importlib import resources
 
 from . import MODELS, __version__
+from .schedule import snapshot_dir
 from . import registry as _reg
 
 # MODEL_CLIS and MODEL_SOURCES are derived from models.json via the registry.
@@ -159,13 +160,6 @@ def cmd_ask(args):
     except FileNotFoundError:
         sys.exit(f"could not run '{runner}'.")
 
-
-def snapshot_dir():
-    """Writable per-user dir where CLI ground-truth snapshots are stored."""
-    base = os.environ.get("XDG_STATE_HOME") or os.path.join(
-        os.path.expanduser("~"), ".local", "state"
-    )
-    return os.path.join(base, "cli-wikia", "snapshots")
 
 
 def _run_cli(cli, probe, timeout=30, env=None):

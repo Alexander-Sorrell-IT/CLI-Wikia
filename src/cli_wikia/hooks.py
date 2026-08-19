@@ -327,21 +327,40 @@ def _load_manifest_hooks(model):
 
 
 def _resolve_target(args, model, json_path):
-    target = args.file or hook_config_path(model)
+    """Where to write this model's hooks.
+
+    Precedence, most specific first:
+
+      1. --file                     an explicit path always wins
+      2. the model's own env var    CLAUDE_CONFIG_DIR for claude, etc.
+      3. WIKIA_CONFIG_DIR           one variable, works for every model
+      4. the wiki's declared path   ~/.claude/settings.json and friends
+
+    0.17.0 hardcoded both the variable name and the ~/.claude prefix, which
+    made a model-agnostic tool honour exactly one model. The prefix never
+    needed hardcoding — the registry knows every model's config_root — and the
+    variable name is the only genuinely unknown part, so it is data with a
+    generic fallback behind it. Six of eight models have no known variable and
+    are still covered, because WIKIA_CONFIG_DIR does not need one.
+    """
+    if args.file:
+        return os.path.expanduser(args.file)
+
+    target = hook_config_path(model)
     if not target:
         print(f"{model}: couldn't find a settings file in the wiki. Your manifest is "
               f"ready at {json_path}; add these hooks via the tool itself.")
         return None
-    # TODO #11: honor CLAUDE_CONFIG_DIR so hooks are written to the correct location
-    # when the user overrides their config root (e.g. .claude-alt harnesses).
-    # We only substitute when the target starts with ~/.claude (the default value
-    # the wiki uses) and CLAUDE_CONFIG_DIR is set to something else.
     target = os.path.expanduser(target)
-    claude_config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
-    if claude_config_dir:
-        default_claude = os.path.expanduser("~/.claude")
-        if target.startswith(default_claude + os.sep) or target == default_claude:
-            target = claude_config_dir + target[len(default_claude):]
+
+    env_name = _reg.config_dir_env(model)
+    override = (os.environ.get(env_name) if env_name else None) or os.environ.get("WIKIA_CONFIG_DIR")
+    root = _reg.config_root(model)
+    if override and root:
+        default_root = os.path.expanduser(os.path.join("~", root))
+        # Anchor on a separator so ~/.claude never matches ~/.claude-alt.
+        if target == default_root or target.startswith(default_root + os.sep):
+            target = override + target[len(default_root):]
     return target
 
 

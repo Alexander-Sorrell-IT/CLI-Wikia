@@ -116,6 +116,17 @@ def settings_path(model: str) -> Optional[str]:
     return get(model, "settings_path")
 
 
+def config_dir_env(model: str) -> Optional[str]:
+    """The env var this tool uses to relocate its config root, if it has one.
+
+    None means no known variable, not "no override" — callers fall back to
+    WIKIA_CONFIG_DIR. Guessing a name here would be worse than leaving it
+    null: a variable nobody sets never fires, which looks exactly like a user
+    who did not want an override.
+    """
+    return get(model, "config_dir_env")
+
+
 def instruction_file(model: str) -> str:
     return get(model, "instruction_file", "AGENTS.md")
 

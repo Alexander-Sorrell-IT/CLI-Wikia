@@ -1,47 +1,78 @@
 {
-  "_comment": "cli-wikia model registry. Each entry covers the facts wikia needs: the CLI binary name, how to invoke it, where its docs live, and where its hook config + instructions file go. All fields are used by wikia commands (update, hooks, ask). Enforcement and fleet each have their own models.json for their additional fields. When cli-collective is installed, a collective models.json can override any field in all three packages from one place. 'artificial_hooks' marks models where the enforcement engine is deployed with placeholder event names instead of real ones — set to true when has_hook_system is false but enforcement still deploys. Set to false once the CLI gains a real hook system and the wiki gains a hooks.md.",
+  "_comment": "cli-wikia model registry. Each entry covers the facts wikia needs: the CLI binary name, how to invoke it, where its docs live, and where its hook config + instructions file go. All fields are used by wikia commands (update, hooks, ask). Enforcement and fleet each have their own models.json for their additional fields. When cli-collective is installed, a collective models.json can override any field in all three packages from one place. 'artificial_hooks' marks models where the enforcement engine is deployed with placeholder event names instead of real ones \u2014 set to true when has_hook_system is false but enforcement still deploys. Set to false once the CLI gains a real hook system and the wiki gains a hooks.md.  config_dir_env: the environment variable that tool uses to relocate its config root. null means no known variable \u2014 wikia then falls back to WIKIA_CONFIG_DIR, which works for every model. Never guess a name here: a wrong variable never fires and is indistinguishable from the user not setting one.",
   "models": {
     "claude": {
       "binary": "claude",
       "docs_url": "https://docs.claude.com/en/docs/claude-code/overview",
-      "ask_template": ["-p", "{q}"],
+      "ask_template": [
+        "-p",
+        "{q}"
+      ],
       "subcommands": [
-        ["hooks", "--help"],
-        ["config", "--help"],
-        ["mcp", "--help"]
+        [
+          "hooks",
+          "--help"
+        ],
+        [
+          "config",
+          "--help"
+        ],
+        [
+          "mcp",
+          "--help"
+        ]
       ],
       "config_root": ".claude",
       "settings_path": "~/.claude/settings.json",
       "instruction_file": "CLAUDE.md",
       "has_hook_system": true,
-      "artificial_hooks": false
+      "artificial_hooks": false,
+      "config_dir_env": "CLAUDE_CONFIG_DIR"
     },
     "deepseek": {
       "binary": "deepseek-code",
       "docs_url": "https://api-docs.deepseek.com/",
-      "ask_template": ["-p", "{q}"],
+      "ask_template": [
+        "-p",
+        "{q}"
+      ],
       "subcommands": [
-        ["hooks", "--help"],
-        ["config", "--help"]
+        [
+          "hooks",
+          "--help"
+        ],
+        [
+          "config",
+          "--help"
+        ]
       ],
       "config_root": ".clawspring",
       "settings_path": "~/.clawspring/hooks.json",
       "instruction_file": "CLAWSPRING.md",
       "has_hook_system": true,
-      "artificial_hooks": false
+      "artificial_hooks": false,
+      "config_dir_env": null
     },
     "copilot": {
       "binary": "copilot",
       "docs_url": "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli",
-      "ask_template": ["-p", "{q}", "--allow-all-tools"],
+      "ask_template": [
+        "-p",
+        "{q}",
+        "--allow-all-tools"
+      ],
       "subcommands": [
-        ["hooks", "--help"]
+        [
+          "hooks",
+          "--help"
+        ]
       ],
       "config_root": ".github",
       "settings_path": ".github/hooks/enforcement.json",
       "instruction_file": ".github/copilot-instructions.md",
       "has_hook_system": true,
-      "artificial_hooks": false
+      "artificial_hooks": false,
+      "config_dir_env": null
     },
     "chatgpt": {
       "binary": "codex",
@@ -52,33 +83,44 @@
       "settings_path": "~/.codex/hooks.json",
       "instruction_file": "AGENTS.md",
       "has_hook_system": true,
-      "artificial_hooks": false
+      "artificial_hooks": false,
+      "config_dir_env": null
     },
     "gemini": {
       "binary": "gemini",
       "docs_url": "https://google-gemini.github.io/gemini-cli/",
-      "ask_template": ["-p", "{q}"],
+      "ask_template": [
+        "-p",
+        "{q}"
+      ],
       "subcommands": [
-        ["--help"]
+        [
+          "--help"
+        ]
       ],
       "config_root": ".gemini",
       "settings_path": "~/.gemini/settings.json",
       "instruction_file": "GEMINI.md",
       "has_hook_system": true,
       "artificial_hooks": true,
-      "_note": "Gemini CLI exposes 7/16 enforcement stages. 9 stages use canonical Claude event names as placeholders until Gemini CLI adds them."
+      "_note": "Gemini CLI exposes 7/16 enforcement stages. 9 stages use canonical Claude event names as placeholders until Gemini CLI adds them.",
+      "config_dir_env": null
     },
     "antigravity": {
       "binary": "agy",
       "docs_url": "https://antigravity.google/docs",
-      "ask_template": ["-p", "{q}"],
+      "ask_template": [
+        "-p",
+        "{q}"
+      ],
       "subcommands": [],
       "config_root": ".agents",
       "settings_path": "~/.agents/hooks.json",
       "instruction_file": "AGENTS.md",
       "has_hook_system": true,
       "artificial_hooks": true,
-      "_note": "Antigravity exposes 3/16 enforcement stages. 13 stages use canonical Claude event names as placeholders until Antigravity adds them."
+      "_note": "Antigravity exposes 3/16 enforcement stages. 13 stages use canonical Claude event names as placeholders until Antigravity adds them.",
+      "config_dir_env": null
     },
     "bob": {
       "binary": null,
@@ -90,22 +132,33 @@
       "instruction_file": "AGENTS.md",
       "has_hook_system": true,
       "artificial_hooks": true,
-      "_note": "Bob inherits Claude Code's full 30-event hook system. hook_events() currently returns [] because bob/hooks.md uses inline backtick lists that the wikia regex doesn't parse. artificial_hooks=true until that is fixed; the deployed events are the correct real Claude set."
+      "_note": "Bob inherits Claude Code's full 30-event hook system. hook_events() currently returns [] because bob/hooks.md uses inline backtick lists that the wikia regex doesn't parse. artificial_hooks=true until that is fixed; the deployed events are the correct real Claude set.",
+      "config_dir_env": null
     },
     "grok": {
       "binary": "grok",
       "docs_url": "https://docs.x.ai/docs/overview",
-      "ask_template": ["-p", "{q}"],
+      "ask_template": [
+        "-p",
+        "{q}"
+      ],
       "subcommands": [
-        ["git", "--help"],
-        ["mcp", "--help"]
+        [
+          "git",
+          "--help"
+        ],
+        [
+          "mcp",
+          "--help"
+        ]
       ],
       "config_root": ".grok",
       "settings_path": ".grok/settings.json",
       "instruction_file": "GROK.md",
       "has_hook_system": false,
       "artificial_hooks": true,
-      "_note": "Installed grok 0.0.34 has no hook system. Successor grok-dev 1.1.7 has 17 events matching Claude's names exactly. When grok-dev is detected (wikia gets hooks.md), set has_hook_system=true and artificial_hooks=false and run cli-enforcement sync grok --write."
+      "_note": "Installed grok 0.0.34 has no hook system. Successor grok-dev 1.1.7 has 17 events matching Claude's names exactly. When grok-dev is detected (wikia gets hooks.md), set has_hook_system=true and artificial_hooks=false and run cli-enforcement sync grok --write.",
+      "config_dir_env": null
     }
   }
 }

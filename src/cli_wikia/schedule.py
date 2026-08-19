@@ -303,3 +303,17 @@ def cmd_remove(args):
             os.remove(q)
     _systemctl("daemon-reload")
     print(f"removed {UNIT_NAME} timer.")
+
+
+def snapshot_dir():
+    """Writable per-user dir where CLI ground-truth snapshots are stored.
+
+    Lives here rather than in cli.py because daemon.py needs it and importing
+    it from cli.py would couple the daemon to the whole command layer. cli.py
+    re-imports it from here; schedule.py imports nothing internal, so nothing
+    cycles.
+    """
+    base = os.environ.get("XDG_STATE_HOME") or os.path.join(
+        os.path.expanduser("~"), ".local", "state"
+    )
+    return os.path.join(base, "cli-wikia", "snapshots")

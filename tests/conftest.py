@@ -20,6 +20,13 @@ def isolated_home(tmp_path, monkeypatch):
     monkeypatch.setenv("XDG_STATE_HOME", str(home / ".local" / "state"))
     # Some libc-backed expanduser paths read USERPROFILE/pwd; keep them aligned.
     monkeypatch.setenv("USERPROFILE", str(home))
+    # Config-root overrides must be cleared too. This fixture promises a test
+    # can never touch the real user environment, and 0.17.0 added a variable
+    # that redirects writes straight back out of the scratch tree: with
+    # CLAUDE_CONFIG_DIR set in the shell, four tests wrote to the developer's
+    # real config and failed. HOME isolation alone is no longer isolation.
+    for var in ("CLAUDE_CONFIG_DIR", "WIKIA_CONFIG_DIR"):
+        monkeypatch.delenv(var, raising=False)
     return home
 
 
