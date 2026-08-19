@@ -93,6 +93,9 @@ def hook_events(model):
     events = re.findall(r"\|\s*`([A-Z][A-Za-z]+)`", text)            # table cells
     if not events:
         events = re.findall(r"^[-*\d.]+\s+`([A-Z][A-Za-z]+)`", text, re.M)  # list items
+    if not events:
+        # Bob-style: inline comma-separated backtick lists, e.g. `SessionStart`, `Setup`
+        events = re.findall(r"`([A-Z][A-Za-z]+)`", text)
     return sorted(set(events))
 
 
@@ -329,7 +332,17 @@ def _resolve_target(args, model, json_path):
         print(f"{model}: couldn't find a settings file in the wiki. Your manifest is "
               f"ready at {json_path}; add these hooks via the tool itself.")
         return None
-    return os.path.expanduser(target)
+    # TODO #11: honor CLAUDE_CONFIG_DIR so hooks are written to the correct location
+    # when the user overrides their config root (e.g. .claude-alt harnesses).
+    # We only substitute when the target starts with ~/.claude (the default value
+    # the wiki uses) and CLAUDE_CONFIG_DIR is set to something else.
+    target = os.path.expanduser(target)
+    claude_config_dir = os.environ.get("CLAUDE_CONFIG_DIR")
+    if claude_config_dir:
+        default_claude = os.path.expanduser("~/.claude")
+        if target.startswith(default_claude + os.sep) or target == default_claude:
+            target = claude_config_dir + target[len(default_claude):]
+    return target
 
 
 def _write_settings(target, merged):
