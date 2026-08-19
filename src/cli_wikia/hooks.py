@@ -96,26 +96,24 @@ def hook_events(model):
     return sorted(set(events))
 
 
-# Known-good per-model settings paths. Preferred over the wiki regex heuristic
-# below; extend as models are verified.
-KNOWN_SETTINGS_PATHS = {
-    "claude": "~/.claude/settings.json",
-    "bob": "~/.config/bob/settings.json",
-}
+# KNOWN_SETTINGS_PATHS and KNOWN_CONFIG_ROOTS are now seeded from models.json
+# via the registry. The wiki heuristics (regex over wiki text) remain as a
+# fallback for any model that the registry doesn't cover.
+from . import registry as _reg
 
-# Known-good project config roots where the wiki word-count heuristic picks the
-# wrong directory (antigravity's most-mentioned dot-dir is `.system_generated/`,
-# its logs dir; the real workspace config dir is `.agents/` per customization.md).
-KNOWN_CONFIG_ROOTS = {
-    "antigravity": ".agents",
-    "bob": ".agents",
-}
+def _settings_from_registry(model):
+    """Settings path from registry when present (preferred over wiki heuristic)."""
+    return _reg.settings_path(model)
+
+def _config_root_from_registry(model):
+    """Config root from registry when present (preferred over wiki heuristic)."""
+    return _reg.config_root(model)
 
 
 def hook_config_path(model):
-    """Where this tool stores hooks/settings — a verified per-model path when we
-    have one, otherwise extracted from its wiki text (heuristic)."""
-    known = KNOWN_SETTINGS_PATHS.get(model)
+    """Where this tool stores hooks/settings — the registry value when we have
+    one, otherwise extracted from its wiki text (heuristic)."""
+    known = _settings_from_registry(model)
     if known:
         return known
     text = _wiki_text(model, "hooks.md", "configuration.md", "settings.md")
@@ -129,7 +127,14 @@ def hook_config_path(model):
 
 
 def instruction_file(model):
-    """The custom-instructions filename this tool reads, found in its wiki."""
+    """The custom-instructions filename this tool reads. Registry value takes
+    priority; falls back to the wiki heuristic (most-mentioned candidate name)."""
+    from . import registry as _r
+    reg_val = _r.instruction_file(model)
+    # registry always returns a default ("AGENTS.md") — only skip the heuristic
+    # if the registry actually has a real entry for this model.
+    if model in _r.all_models():
+        return reg_val
     text = _wiki_text(model)
     counts = {c: len(re.findall(re.escape(c), text)) for c in INSTRUCTION_CANDIDATES}
     best = max(counts, key=lambda c: counts[c])
@@ -138,10 +143,9 @@ def instruction_file(model):
 
 def config_root(model):
     """The project-level config directory a tool uses (e.g. .claude, .gemini,
-    .github), derived dynamically from the model's wiki — the most-mentioned
-    dot-directory. Used by downstream tools (e.g. cli-enforcement) to know where
-    to deploy per-model files. Returns None if the wiki names no such dir."""
-    known = KNOWN_CONFIG_ROOTS.get(model)
+    .github). Registry value takes priority; falls back to the wiki heuristic
+    (most-mentioned dot-directory). Returns None if neither source knows."""
+    known = _config_root_from_registry(model)
     if known:
         return known
     text = _wiki_text(model, "hooks.md", "configuration.md", "settings.md",

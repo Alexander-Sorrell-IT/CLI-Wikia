@@ -16,85 +16,30 @@ import urllib.request
 from importlib import resources
 
 from . import MODELS, __version__
+from . import registry as _reg
 
-# Which installed CLI can answer questions / provide updates for each model.
-MODEL_CLIS = {
-    "claude": "claude",
-    "deepseek": "deepseek-code",
-    "copilot": "copilot",
-    "chatgpt": "codex",  # OpenAI Codex CLI (may not be installed yet)
-    "gemini": "gemini",
-    "antigravity": "agy",  # Google Antigravity CLI
-    "bob": None,  # Bob has no standalone CLI binary — it IS the application
-}
+# MODEL_CLIS and MODEL_SOURCES are derived from models.json via the registry.
+# Adding a model to models.json (or the collective override) automatically
+# extends `wikia update` and `wikia ask` without touching this file.
 
-# Sources the `update` command checks for changes, per model. The real signal
-# comes from (1) the official docs and (2) asking the model itself — NOT a
-# `--help` dump. `version` is just a cheap authoritative version string.
-#  - version: read-only version probe (no side effects).
-#  - docs: official documentation URL (best-effort; edit if a tool moves its docs).
-#  - ask: argv template to query the model in one-shot mode; "{q}" = the question.
-#         None means the model can't be queried that way (e.g. tool not installed).
-#  - subcommands: list of argv probes (e.g. ["hooks", "--help"]) to run in addition
-#         to the top-level --help. Each is appended to the CLI name and run with
-#         COLUMNS=80 so output is stable across terminals.
-MODEL_SOURCES = {
-    "claude": {
-        "version": ["--version"],
-        "docs": "https://docs.claude.com/en/docs/claude-code/overview",
-        "ask": ["-p", "{q}"],
-        "subcommands": [
-            ["hooks", "--help"],
-            ["config", "--help"],
-            ["mcp", "--help"],
-        ],
-    },
-    "deepseek": {
-        "version": ["--version"],
-        "docs": "https://api-docs.deepseek.com/",
-        "ask": ["-p", "{q}"],
-        "subcommands": [
-            ["hooks", "--help"],
-            ["config", "--help"],
-        ],
-    },
-    "copilot": {
-        "version": ["--version"],
-        "docs": "https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli",
-        "ask": ["-p", "{q}", "--allow-all-tools"],
-        "subcommands": [
-            ["hooks", "--help"],
-        ],
-    },
-    "chatgpt": {
-        "version": ["--version"],
-        "docs": "https://developers.openai.com/codex/cli/",
-        "ask": None,  # codex isn't installed; openai CLI isn't a one-shot agent
-        "subcommands": [],
-    },
-    "gemini": {
-        "version": ["--version"],
-        "docs": "https://google-gemini.github.io/gemini-cli/",
-        "ask": ["-p", "{q}"],
-        "subcommands": [
-            ["--help"],  # gemini subcommand help via top-level flags
-        ],
-    },
-    "antigravity": {
-        "version": ["--version"],
-        "docs": "https://antigravity.google/docs",
-        "ask": ["-p", "{q}"],
-        "subcommands": [],
-    },
-    "bob": {
-        # Bob has no standalone CLI — no version probe, no ask template.
-        # Docs are the wiki itself; update checks the github repo instead.
-        "version": None,
-        "docs": "https://github.com/Alexander-Sorrell-IT/matrixbuilderops",
-        "ask": None,
-        "subcommands": [],
-    },
-}
+def _build_model_clis():
+    """Map model name -> CLI binary name (None if no standalone binary)."""
+    return {m: _reg.binary(m) for m in MODELS}
+
+def _build_model_sources():
+    """Map model name -> update/ask source spec dict."""
+    result = {}
+    for m in MODELS:
+        result[m] = {
+            "version": ["--version"] if _reg.binary(m) else None,
+            "docs": _reg.docs_url(m),
+            "ask": _reg.ask_template(m),
+            "subcommands": _reg.subcommands(m),
+        }
+    return result
+
+MODEL_CLIS = _build_model_clis()
+MODEL_SOURCES = _build_model_sources()
 
 # What `update` asks each model about itself.
 WHATS_NEW_Q = (

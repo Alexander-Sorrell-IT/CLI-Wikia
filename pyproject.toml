@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cli-wikia"
-version = "0.15.0"
+version = "0.16.0"
 description = "Offline, pip-installable reference wiki for AI coding CLIs (Claude, DeepSeek, Copilot, ChatGPT, Gemini, Bob) with a search/read command."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -34,4 +34,4 @@ wikia = "cli_wikia.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cli_wikia"]
-artifacts = ["src/cli_wikia/wikis/**/*.md"]
+artifacts = ["src/cli_wikia/wikis/**/*.md", "src/cli_wikia/models.json"]
