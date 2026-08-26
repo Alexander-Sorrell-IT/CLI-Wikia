@@ -94,10 +94,23 @@ def cmd_list(args):
 
 def cmd_read(args):
     m = resolve_model(args.model)
-    f = model_dir(m) / f"{args.topic}.md"
+    topic = args.topic
+    # Prevent path traversal by rejecting topics with path separators or parent references
+    if ".." in topic or "/" in topic or "\\" in topic:
+        sys.exit(f"invalid topic name '{topic}'. Topic names must be simple identifiers.")
+    f = model_dir(m) / f"{topic}.md"
+    # Double-check that the resolved path is still within the model directory
+    try:
+        f_resolved = f.resolve(strict=True)
+        model_dir_resolved = model_dir(m).resolve()
+        if not str(f_resolved).startswith(str(model_dir_resolved)):
+            sys.exit(f"access denied: path escapes model directory")
+    except FileNotFoundError:
+        avail = ", ".join(topics(m)) or "(none yet)"
+        sys.exit(f"no topic '{topic}' in {m}.\navailable: {avail}")
     if not f.is_file():
         avail = ", ".join(topics(m)) or "(none yet)"
-        sys.exit(f"no topic '{args.topic}' in {m}.\navailable: {avail}")
+        sys.exit(f"no topic '{topic}' in {m}.\navailable: {avail}")
     sys.stdout.write(f.read_text(encoding="utf-8"))
 
 

@@ -1,5 +1,7 @@
 """Shared fixtures — keep every test hermetic (no network, never touch real ~/.claude)."""
 import json
+import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -28,6 +30,23 @@ def isolated_home(tmp_path, monkeypatch):
     for var in ("CLAUDE_CONFIG_DIR", "WIKIA_CONFIG_DIR"):
         monkeypatch.delenv(var, raising=False)
     return home
+
+
+@pytest.fixture
+def wiki_dir(tmp_path):
+    """Create a temporary wiki directory for testing."""
+    wiki = tmp_path / "wiki"
+    wiki.mkdir()
+    # Create basic structure
+    (wiki / "claude").mkdir()
+    (wiki / "gemini").mkdir()
+    (wiki / "copilot").mkdir()
+    
+    # Create some sample topic files
+    (wiki / "claude" / "hooks.md").write_text("# Hooks\nHook documentation")
+    (wiki / "gemini" / "topics.md").write_text("# Topics\nTopic documentation")
+    
+    return wiki
 
 
 def write_json(path, obj):
