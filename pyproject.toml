@@ -34,4 +34,4 @@ wikia = "cli_wikia.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cli_wikia"]
-artifacts = ["src/cli_wikia/wikis/**/*.md", "src/cli_wikia/models.json"]
+artifacts = ["src/cli_wikia/wikis/**/*.md", "src/cli_wikia/wikis/**/versions.json", "src/cli_wikia/models.json"]

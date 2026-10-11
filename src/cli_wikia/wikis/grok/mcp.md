@@ -1,5 +1,8 @@
 # MCP Servers
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 `@vibe-kit/grok-cli` 0.0.34 has first-class MCP (Model Context Protocol) support via the
 `@modelcontextprotocol/sdk`. Configuration is **project-only**: servers live in
 `.grok/settings.json` under `mcpServers`, and `loadMCPConfig()` reads only project

@@ -1,5 +1,8 @@
 # CLI Reference
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 The `grok` command starts an interactive Ink/React TUI by default, runs one-shot
 headless with `-p`, and has two subcommand groups: `git` and `mcp`. This page is
 the complete surface as reported by `grok --help`, `grok git --help`,

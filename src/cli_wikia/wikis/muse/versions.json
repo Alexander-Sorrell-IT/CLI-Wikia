@@ -1,0 +1,11 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "cli_version": "1.4.4 (1.4.4-R5419.1)",
+      "date": "2026-10-10",
+      "note": "baseline snapshot (wiki v2)",
+      "topics": 21
+    }
+  ]
+}

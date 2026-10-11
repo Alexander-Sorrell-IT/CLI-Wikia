@@ -1,0 +1,11 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "cli_version": "?",
+      "date": "2026-10-10",
+      "note": "baseline snapshot at versioning launch",
+      "topics": 26
+    }
+  ]
+}

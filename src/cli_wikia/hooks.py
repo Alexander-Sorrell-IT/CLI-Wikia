@@ -22,6 +22,12 @@ import sys
 from pathlib import Path
 
 from . import MODELS
+from .user_config import pick_model
+
+
+def _pick(args):
+    return pick_model("wikia", getattr(args, "model_flag", None),
+                      getattr(args, "model", None))
 
 MARK_START = "<!-- cli-wikia:start -->"
 MARK_END = "<!-- cli-wikia:end -->"
@@ -32,7 +38,7 @@ MARK_END = "<!-- cli-wikia:end -->"
 INSTRUCTION_CANDIDATES = [
     "CLAUDE.md", "GEMINI.md", "AGENTS.md",
     ".github/copilot-instructions.md", "QWEN.md", "codex.md",
-    "CLAWSPRING.md", "BOB.md",
+    "CLAWSPRING.md", "BOB.md", "GROK.md", "CONVENTIONS.md",
 ]
 
 
@@ -198,7 +204,7 @@ def _instruction_path(model, override=None):
 
 
 def cmd_enable(args):
-    model = _resolve(args.model)
+    model = _pick(args)
     path = _instruction_path(model, args.file)
     block = _awareness_block(model)
     existing = _read_text(path)
@@ -219,7 +225,7 @@ def cmd_enable(args):
 
 
 def cmd_disable(args):
-    model = _resolve(args.model)
+    model = _pick(args)
     path = _instruction_path(model, args.file)
     if not os.path.exists(path):
         print(f"{model}: {path} does not exist — nothing to remove")
@@ -241,7 +247,7 @@ def cmd_disable(args):
 # Level 2 — tailored hook manifest
 # --------------------------------------------------------------------------- #
 def cmd_manifest(args):
-    model = _resolve(args.model)
+    model = _pick(args)
     if not has_hook_system(model):
         sys.exit(
             f"{model}'s wiki documents no hook system (no hooks.md). "
@@ -377,7 +383,7 @@ def _write_settings(target, merged):
 
 
 def cmd_apply(args):
-    model = _resolve(args.model)
+    model = _pick(args)
     if not has_hook_system(model):
         sys.exit(f"{model}'s wiki documents no hook system to apply to.")
     json_path, chosen = _load_manifest_hooks(model)
@@ -425,7 +431,7 @@ def cmd_apply(args):
 
 def cmd_unapply(args):
     """Remove exactly the handler groups our manifest installed (by command string)."""
-    model = _resolve(args.model)
+    model = _pick(args)
     json_path, chosen = _load_manifest_hooks(model)
     ours = set()
     for handlers in chosen.values():
@@ -468,7 +474,11 @@ def cmd_unapply(args):
 
 
 def cmd_status(args):
-    models = MODELS if (args.all or not args.model) else [_resolve(args.model)]
+    flag = getattr(args, "model_flag", None)
+    if args.all or (not args.model and not flag):
+        models = MODELS
+    else:
+        models = [_pick(args)]
     for m in models:
         if has_hook_system(m):
             n = len(hook_events(m))

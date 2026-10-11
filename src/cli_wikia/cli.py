@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import json
 import os
 import re
 import shutil
@@ -18,6 +19,7 @@ from importlib import resources
 from . import MODELS, __version__
 from .schedule import snapshot_dir
 from . import registry as _reg
+from .user_config import add_model_flags, pick_model
 
 # MODEL_CLIS and MODEL_SOURCES are derived from models.json via the registry.
 # Adding a model to models.json (or the collective override) automatically
@@ -66,6 +68,36 @@ def topics(model):
     return sorted(p.name[:-3] for p in d.iterdir() if p.name.endswith(".md"))
 
 
+def model_versions(model):
+    """Sorted archived-version entries from versions.json (may be empty)."""
+    mf = model_dir(model) / "versions.json"
+    if not mf.is_file():
+        return []
+    try:
+        data = json.loads(mf.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    vs = data.get("versions", []) if isinstance(data, dict) else []
+    return sorted(vs, key=lambda e: e.get("version", 0))
+
+
+def _pick(args):
+    return pick_model("wikia", getattr(args, "model_flag", None),
+                      getattr(args, "model", None))
+
+
+def cmd_versions(args):
+    m = _pick(args)
+    vs = model_versions(m)
+    if not vs:
+        print(f"{m}: no archived versions (flat pages are the only copy)")
+        return
+    for e in vs:
+        print(f"v{e.get('version')}  {e.get('date', '?')}  "
+              f"cli {e.get('cli_version', '?')}  {e.get('note', '')}")
+    print("(flat pages = latest, may be newer than the newest archive)")
+
+
 def resolve_model(model):
     if model not in MODELS:
         sys.exit(f"unknown model '{model}'. choose from: {', '.join(MODELS)}")
@@ -84,7 +116,8 @@ def cmd_models(args):
 
 
 def cmd_list(args):
-    models = [resolve_model(args.model)] if args.model else MODELS
+    flag = getattr(args, "model_flag", None)
+    models = [pick_model("wikia", flag, args.model)] if (flag or args.model) else MODELS
     for m in models:
         ts = topics(m)
         print(f"\n# {m} ({len(ts)} topics)")
@@ -93,12 +126,18 @@ def cmd_list(args):
 
 
 def cmd_read(args):
-    m = resolve_model(args.model)
+    m = _pick(args)
     topic = args.topic
     # Prevent path traversal by rejecting topics with path separators or parent references
     if ".." in topic or "/" in topic or "\\" in topic:
         sys.exit(f"invalid topic name '{topic}'. Topic names must be simple identifiers.")
-    f = model_dir(m) / f"{topic}.md"
+    base = model_dir(m)
+    as_of = getattr(args, "as_of", None)
+    if as_of is not None:
+        base = model_dir(m) / "versions" / str(as_of)
+        if not base.is_dir():
+            sys.exit(f"unknown version '{as_of}' for {m} (see: wikia versions {m})")
+    f = base / f"{topic}.md"
     # Double-check that the resolved path is still within the model directory
     try:
         f_resolved = f.resolve(strict=True)
@@ -116,7 +155,9 @@ def cmd_read(args):
 
 def cmd_search(args):
     needle = args.query.lower()
-    models = [resolve_model(args.model)] if args.model else MODELS
+    flag = getattr(args, "model_flag", None)
+    limit = flag or args.model
+    models = [resolve_model(limit)] if limit else MODELS
     hits = 0
     for m in models:
         d = model_dir(m)
@@ -134,15 +175,16 @@ def cmd_search(args):
 
 
 def cmd_path(args):
-    if args.model:
-        print(model_dir(resolve_model(args.model)))
+    flag = getattr(args, "model_flag", None)
+    if flag or args.model:
+        print(model_dir(pick_model("wikia", flag, args.model)))
     else:
         print(wikis_root())
 
 
 def cmd_ask(args):
     """Use a local model CLI to answer a question grounded in the wiki docs."""
-    m = resolve_model(args.model)
+    m = _pick(args)
     cli = MODEL_CLIS.get(m)
     runner = cli if (cli and shutil.which(cli)) else ("ollama" if shutil.which("ollama") else None)
     if not runner:
@@ -279,9 +321,9 @@ def cmd_update(args):
     Reports what changed so curated docs can be refreshed. No API keys. Never
     overwrites the curated .md files; snapshots live in the user state dir.
     """
-    if not args.all and not args.model:
+    if not args.all and not args.model and not getattr(args, "model_flag", None):
         sys.exit("specify a model (e.g. `wikia update gemini`) or use `--all`.")
-    models = MODELS if args.all else [resolve_model(args.model)]
+    models = MODELS if args.all else [_pick(args)]
     use_docs = not args.no_docs
     use_model = not args.no_model
     sdir = snapshot_dir()
@@ -371,7 +413,8 @@ def build_parser():
     p = argparse.ArgumentParser(
         prog="wikia",
         description="Offline reference wiki for AI coding CLIs "
-        "(claude, deepseek, copilot, chatgpt, gemini, antigravity).",
+        "(see: wikia models). Model commands accept --model, --<name>, or "
+        "default_model in cli-wikia / cli-collective config.",
     )
     p.add_argument("--version", action="version", version=f"cli-wikia {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -380,31 +423,44 @@ def build_parser():
 
     sp = sub.add_parser("list", help="list topics (optionally for one model)")
     sp.add_argument("model", nargs="?", help="model name (default: all)")
+    add_model_flags(sp, MODELS)
     sp.set_defaults(func=cmd_list)
 
     sp = sub.add_parser("read", help="print a topic")
-    sp.add_argument("model")
+    sp.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     sp.add_argument("topic")
+    sp.add_argument("--as-of", default=None,
+                    help="read from archived version N (see: versions)")
+    add_model_flags(sp, MODELS)
     sp.set_defaults(func=cmd_read)
+
+    sp = sub.add_parser("versions", help="list archived wiki versions")
+    sp.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
+    add_model_flags(sp, MODELS)
+    sp.set_defaults(func=cmd_versions)
 
     sp = sub.add_parser("search", help="search text across topics")
     sp.add_argument("query")
     sp.add_argument("--model", help="limit to one model")
+    add_model_flags(sp, MODELS, with_model=False)
     sp.set_defaults(func=cmd_search)
 
     sp = sub.add_parser("path", help="print the on-disk path (for editing files)")
     sp.add_argument("model", nargs="?")
+    add_model_flags(sp, MODELS)
     sp.set_defaults(func=cmd_path)
 
     sp = sub.add_parser("ask", help="ask a question answered from the docs via a local model")
-    sp.add_argument("model")
+    sp.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     sp.add_argument("question")
     sp.add_argument("--ollama-model", default="llama3", help="ollama model to use as fallback")
     sp.add_argument("--max-context", type=int, default=24000, help="max chars of docs to feed")
+    add_model_flags(sp, MODELS)
     sp.set_defaults(func=cmd_ask)
 
     sp = sub.add_parser("update", help="check a model's sources (help, docs, model) for changes")
     sp.add_argument("model", nargs="?", help="model name (omit and use --all for every model)")
+    add_model_flags(sp, MODELS)
     sp.add_argument("--all", action="store_true", help="check every model")
     sp.add_argument("--write", action="store_true", help="accept current state as the new baseline")
     sp.add_argument("--no-docs", action="store_true", help="skip fetching official docs (offline / faster)")
@@ -420,34 +476,40 @@ def build_parser():
     s = hsub.add_parser("status", help="show integration status per model")
     s.add_argument("model", nargs="?")
     s.add_argument("--all", action="store_true")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_status)
 
     s = hsub.add_parser("enable", help="Level 1: tell a model the wiki exists (dry-run unless --write)")
-    s.add_argument("model")
+    s.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     s.add_argument("--file", help="instructions file to write (default: per-model convention)")
     s.add_argument("--write", action="store_true", help="actually write the change")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_enable)
 
     s = hsub.add_parser("disable", help="Level 1: remove the wiki awareness block")
-    s.add_argument("model")
+    s.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     s.add_argument("--file")
     s.add_argument("--write", action="store_true")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_disable)
 
     s = hsub.add_parser("manifest", help="Level 2: generate the hook-positions doc from the wiki")
-    s.add_argument("model")
+    s.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_manifest)
 
     s = hsub.add_parser("apply", help="Level 2: install the edited hooks (dry-run unless --write)")
-    s.add_argument("model")
+    s.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     s.add_argument("--file", help="target settings file (default: per-model)")
     s.add_argument("--write", action="store_true", help="actually install the hooks")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_apply)
 
     s = hsub.add_parser("remove", help="Level 2: remove the hooks installed by apply (dry-run unless --write)")
-    s.add_argument("model")
+    s.add_argument("model", nargs="?", help="model name (or --model/--<name>/config)")
     s.add_argument("--file", help="target settings file (default: per-model)")
     s.add_argument("--write", action="store_true", help="actually remove the hooks")
+    add_model_flags(s, MODELS)
     s.set_defaults(func=H.cmd_unapply)
 
     # daemon — self-contained background process (replaces launchd/systemd)

@@ -1,5 +1,8 @@
 # Configuration
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 Grok CLI is configured across **two JSON files** — a user file in `~/.grok/` and
 a project file in `.grok/` — plus environment variables and CLI flags on top.
 Both files are managed by `dist/utils/settings-manager.js`; this page documents

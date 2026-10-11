@@ -123,16 +123,19 @@
       "config_dir_env": null
     },
     "bob": {
-      "binary": null,
+      "binary": "bob",
       "docs_url": "https://github.com/Alexander-Sorrell-IT/matrixbuilderops",
-      "ask_template": null,
+      "ask_template": [
+        "run",
+        "{q}"
+      ],
       "subcommands": [],
       "config_root": ".agents",
-      "settings_path": "~/.config/bob/settings.json",
+      "settings_path": "~/.bob/settings/settings.json",
       "instruction_file": "AGENTS.md",
       "has_hook_system": true,
       "artificial_hooks": true,
-      "_note": "Bob inherits Claude Code's full 30-event hook system. hook_events() currently returns [] because bob/hooks.md uses inline backtick lists that the wikia regex doesn't parse. artificial_hooks=true until that is fixed; the deployed events are the correct real Claude set.",
+      "_note": "Bob 2.0.6 binary verified installed (bob run headless, needs BOB_API_KEY). Settings live at ~/.bob/settings/settings.json (was ~/.config/bob). Bob inherits Claude Code's full 30-event hook system. hook_events() currently returns [] because bob/hooks.md uses inline backtick lists that the wikia regex doesn't parse. artificial_hooks=true until that is fixed; the deployed events are the correct real Claude set.",
       "config_dir_env": null
     },
     "grok": {
@@ -158,6 +161,111 @@
       "has_hook_system": false,
       "artificial_hooks": true,
       "_note": "Installed grok 0.0.34 has no hook system. Successor grok-dev 1.1.7 has 17 events matching Claude's names exactly. When grok-dev is detected (wikia gets hooks.md), set has_hook_system=true and artificial_hooks=false and run cli-enforcement sync grok --write.",
+      "config_dir_env": null
+    },
+    "muse": {
+      "binary": "muse",
+      "docs_url": null,
+      "ask_template": [
+        "exec",
+        "{q}"
+      ],
+      "subcommands": [
+        [
+          "exec",
+          "--help"
+        ],
+        [
+          "skills",
+          "--help"
+        ],
+        [
+          "init",
+          "--help"
+        ]
+      ],
+      "config_root": ".muse",
+      "settings_path": "~/.config/muse/settings.json",
+      "instruction_file": "AGENTS.md",
+      "has_hook_system": true,
+      "artificial_hooks": true,
+      "_note": "Muse Code 1.4.4. REAL hook system, fire-proven both routes: user (~/.config/muse/settings.json hooks key, Claude-shaped groups) and project (workspace plugin .muse-plugin/plugin.json capabilities.hooks, install --scope project + approve; nesting under .muse/ proven). 20 wire events (MSP schema); 13/16 enforcement stages real, 3 artificial (InstructionsLoaded/ConfigChange/TaskCompleted absent from schema). docs_url=null: no official docs URL used; wiki sourced from --help + MSP schema export + session taxonomy + fire probes (all offline).",
+      "config_dir_env": null
+    },
+    "qwen": {
+      "binary": "qwen",
+      "docs_url": null,
+      "ask_template": [
+        "{q}"
+      ],
+      "subcommands": [
+        [
+          "mcp",
+          "--help"
+        ],
+        [
+          "sandbox",
+          "--help"
+        ]
+      ],
+      "config_root": ".qwen",
+      "settings_path": "~/.qwen/settings.json",
+      "instruction_file": "QWEN.md",
+      "has_hook_system": true,
+      "artificial_hooks": true,
+      "_note": "Qwen Code 0.24.7 (@qwen-code/qwen-code, npm). Real Claude-compatible hooks firing via messageBus (8 events verified in dist: PreToolUse/PostToolUse/PostToolUseFailure/Stop/UserPromptSubmit/PermissionRequest/PostToolBatch/Notification). 6/16 enforcement stages real, 10 artificial. docs_url=null: no official docs URL used; wiki sourced from installed dist + --help. -p deprecated upstream in favor of positional prompt. qwen hooks --help prints nothing (managed via /hooks dialog).",
+      "config_dir_env": null
+    },
+    "aider": {
+      "binary": "aider",
+      "docs_url": null,
+      "ask_template": [
+        "--message",
+        "{q}",
+        "--exit",
+        "--yes-always"
+      ],
+      "subcommands": [],
+      "config_root": ".aider",
+      "settings_path": "~/.aider.conf.yml",
+      "instruction_file": "CONVENTIONS.md",
+      "has_hook_system": false,
+      "artificial_hooks": true,
+      "_note": "Aider 0.86.2 (uv tool). No hook system (only git hooks mentioned in --help). No CLI dot-dir: project .aider.conf.yml at root or ~/.aider.conf.yml; .aider staging dir is ours for engine+docs+artificial wiring. CONVENTIONS.md verified x10 in installed package (no AGENTS.md). docs_url=null: wiki sourced from --help + installed package + observed conf.",
+      "config_dir_env": null
+    },
+    "opencode": {
+      "binary": "opencode",
+      "docs_url": null,
+      "ask_template": [
+        "run",
+        "{q}"
+      ],
+      "subcommands": [
+        [
+          "run",
+          "--help"
+        ]
+      ],
+      "config_root": ".opencode",
+      "settings_path": "~/.config/opencode/opencode.json",
+      "instruction_file": "AGENTS.md",
+      "has_hook_system": false,
+      "artificial_hooks": true,
+      "_note": "opencode v2.0.22 (native binary). No JSON hooks surface: plugin API + permission/session event bus exist in-binary (hook.before/after, permission.asked/rejected/replied, session.*) but enforcement cannot attach shell commands via config. .opencode staging dir is ours. AGENTS.md + opencode.json(c) verified in binary strings. docs_url=null: wiki sourced from --help + binary strings + live run probe.",
+      "config_dir_env": null
+    },
+    "cursor": {
+      "binary": "cursor-agent",
+      "docs_url": null,
+      "ask_template": null,
+      "subcommands": [],
+      "config_root": ".cursor",
+      "settings_path": "~/.cursor/settings.json",
+      "instruction_file": "AGENTS.md",
+      "has_hook_system": false,
+      "artificial_hooks": true,
+      "_note": "UNVERIFIED/ASSUMED (cursor-agent not installed on maintainer machine; added for ecosystem coverage per user request). Binary/config paths/instruction file are best-effort assumptions. Install cursor-agent, confirm --help + config layout + hook support, then fill ask_template/subcommands, correct paths, set has_hook_system if hooks exist, flip fleet verified, and remove this note.",
       "config_dir_env": null
     }
   }

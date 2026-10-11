@@ -1,5 +1,8 @@
 # The Successor: `grok-dev` (and the Grok CLI Ecosystem)
 
+> wiki-version: 1 | subject: npm grok-dev 1.1.7 (successor, NOT installed here) | reviewed: 2026-10-10
+> source: prior maintainer research; installed line is still @vibe-kit/grok-cli 0.0.34 (frozen).
+
 This wiki documents the **installed** `@vibe-kit/grok-cli` **0.0.34** — a frozen
 legacy line, last published 2025-11-27. As of mid-2026 there are **three** distinct
 "Grok CLI" tools in circulation, two of which share the same binary name. This page

@@ -1,0 +1,11 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "cli_version": "0.24.7 (@qwen-code/qwen-code, npm)",
+      "date": "2026-10-10",
+      "note": "baseline snapshot (wiki v1)",
+      "topics": 5
+    }
+  ]
+}

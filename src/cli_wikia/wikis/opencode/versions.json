@@ -1,0 +1,11 @@
+{
+  "versions": [
+    {
+      "version": 1,
+      "cli_version": "v2.0.22 (native binary)",
+      "date": "2026-10-10",
+      "note": "baseline snapshot (wiki v1)",
+      "topics": 4
+    }
+  ]
+}

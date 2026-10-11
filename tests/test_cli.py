@@ -82,6 +82,6 @@ def test_capture_sources_runs_subcommand_probes(monkeypatch):
 
 
 def test_capture_sources_no_subcommands_for_bob():
-    """bob has subcommands=[] — capture_sources skips CLI probes entirely
-    (bob has no CLI binary; the docs-only path is used instead)."""
+    """bob has subcommands=[] — capture_sources runs only the top-level
+    --version/--help probes (no per-subcommand probes)."""
     assert cli.MODEL_SOURCES["bob"]["subcommands"] == []

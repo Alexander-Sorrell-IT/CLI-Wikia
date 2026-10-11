@@ -1,5 +1,8 @@
 # Custom Instructions — `.grok/GROK.md`
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 Grok CLI (`@vibe-kit/grok-cli` 0.0.34) supports exactly one custom-instructions
 mechanism: a markdown file at `.grok/GROK.md`. The loader is
 23 lines of code (`dist/utils/custom-instructions.js`) and its behavior is simple and

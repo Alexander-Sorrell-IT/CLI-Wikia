@@ -1,5 +1,8 @@
 # Models
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 How `@vibe-kit/grok-cli` 0.0.34 picks a model, what it ships with, and — separately —
 what the live xAI API actually serves today. The two have diverged: the bundled list
 predates xAI's 2026-05-15 model retirements (see the last section).

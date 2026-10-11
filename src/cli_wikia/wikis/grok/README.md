@@ -1,5 +1,8 @@
 # Grok CLI Wiki
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 **Grok CLI** (`grok`) is an open-source, community-built terminal coding agent for
 xAI's Grok models, published on npm as **`@vibe-kit/grok-cli`** by the
 superagent-ai / vibe-kit project. It is an agentic loop with file-editing tools,

@@ -1,5 +1,8 @@
 # Headless Mode
 
+> wiki-version: 1 | cli-version: 0.0.34 (self-reports 1.0.1, hardcoded) | verified: 2026-10-10
+> source: re-verified against installed @vibe-kit/grok-cli dist + --help; no hooks, no changes since 0.0.34.
+
 `grok -p "prompt"` / `grok --prompt "prompt"` processes a single prompt non-interactively
 and exits. This is the scripting/CI entry point of `@vibe-kit/grok-cli` 0.0.34 (note:
 `grok --version` misreports a hardcoded `1.0.1`). There is no separate "exec" subcommand —
